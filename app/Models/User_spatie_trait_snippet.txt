@@ -1,0 +1,8 @@
+// En app/Models/User.php agrega:
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    use HasRoles;
+    ...
+}

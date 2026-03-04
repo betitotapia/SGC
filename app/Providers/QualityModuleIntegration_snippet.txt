@@ -1,0 +1,19 @@
+// 1) AppServiceProvider.php
+use App\Models\QualityTask;
+use App\Observers\QualityTaskObserver;
+
+public function boot(): void
+{
+    QualityTask::observe(QualityTaskObserver::class);
+}
+
+// 2) app/Console/Kernel.php
+protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule): void
+{
+    $schedule->command('quality:notify-due-tasks')->dailyAt('08:00');
+}
+
+// 3) app/Console/Kernel.php - registra comando si no hay auto-discovery:
+protected $commands = [
+    \App\Console\Commands\NotifyDueQualityTasks::class,
+];
