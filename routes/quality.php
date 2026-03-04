@@ -20,8 +20,7 @@ Route::middleware(['auth','permission:quality.plans.view'])->prefix('quality')->
         Route::post('kanban/status', [QualityKanbanController::class, 'updateStatus'])->name('kanban.status');
     });
 
-    Route::post('tasks/{task}/evidences', [QualityTaskEvidenceController::class, 'store'])->name('tasks.evidences.store');
-    Route::delete('evidences/{evidence}', [QualityTaskEvidenceController::class, 'destroy'])->name('evidences.destroy');
+   
     Route::middleware(['auth','permission:quality.departments.manage'])->group(function () {
     Route::resource('departments', DepartmentController::class)->except(['show']);
     Route::post('departments/{department}/toggle', [DepartmentController::class, 'toggle'])->name('departments.toggle');
