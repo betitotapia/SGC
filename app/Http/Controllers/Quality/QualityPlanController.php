@@ -23,31 +23,40 @@ class QualityPlanController extends Controller
         $this->middleware(['auth','permission:quality.plans.delete'])->only(['destroy']);
     }
 
-    public function index(Request $request): View
-    {
-        $q = $request->string('q')->toString();
+   public function index(Request $request): View
+{
+    $user = $request->user();
+    $q = $request->string('q')->toString();
 
-        $plans = QualityPlan::query()
-            ->when($q, function ($query) use ($q) {
-                $query->where('folio', 'like', "%{$q}%")
+    $plans = \App\Models\QualityPlan::query()
+        ->with(['department', 'owner'])
+        // ✅ Filtro por departamento para NO calidad
+        ->when(!$user->isQuality(), function ($query) use ($user) {
+            $query->where('department_id', $user->department_id);
+        })
+        // ✅ Buscador (folio, hallazgo, departamento, responsable, status)
+        ->when($q, function ($query) use ($q) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('folio', 'like', "%{$q}%")
                     ->orWhere('finding', 'like', "%{$q}%")
-                    ->orWhere('department', 'like', "%{$q}%")
                     ->orWhere('owner_name', 'like', "%{$q}%")
-                    ->orWhere('status', 'like', "%{$q}%");
-            })
-            ->orderByDesc('id')
-            ->paginate(15)
-            ->withQueryString();
+                    ->orWhere('status', 'like', "%{$q}%")
+                    // busca por nombre del departamento (nuevo modelo)
+                    ->orWhereHas('department', function ($dq) use ($q) {
+                        $dq->where('name', 'like', "%{$q}%");
+                    });
 
-            $user = $request->user();
-            $plans = \App\Models\QualityPlan::query()->when(!$user->isQuality(), function ($q) use ($user) {
-                $q->where('department_id', $user->department_id);
-            })
-            ->latest()
-            ->paginate(15);
+                // Si todavía tienes columna legacy `department` (texto) y NO la has eliminado,
+                // puedes descomentar esta línea:
+                // ->orWhere('department', 'like', "%{$q}%");
+            });
+        })
+        ->orderByDesc('id')
+        ->paginate(15)
+        ->withQueryString();
 
-        return view('quality.plans.index', compact('plans', 'q'));
-    }
+    return view('quality.plans.index', compact('plans', 'q'));
+}
 
     public function create(): View
     {

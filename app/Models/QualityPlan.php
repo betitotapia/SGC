@@ -42,7 +42,7 @@ class QualityPlan extends Model
 
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'owner_id');
+          return $this->belongsTo(\App\Models\User::class, 'owner_id');
     }
 
     /** Recalcula el progreso (0..100) por tareas cerradas. NO toca el status del plan (manual). */
@@ -63,6 +63,7 @@ class QualityPlan extends Model
     }
     public function department()
         {
-            return $this->belongsTo(Department::class, 'department_id');
+            return $this->belongsTo(\App\Models\Department::class, 'department_id');
         }
+    
 }
