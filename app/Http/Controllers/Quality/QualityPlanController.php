@@ -28,10 +28,7 @@ class QualityPlanController extends Controller
     $user = $request->user();
     $q = $request->string('q')->toString();
 
-    $plans = \App\Models\QualityPlan::query()
-        ->with(['department', 'owner'])
-        // ✅ Filtro por departamento para NO calidad
-        ->when(!$user->isQuality(), function ($query) use ($user) {
+    $plans = \App\Models\QualityPlan::query()->with(['department', 'owner'])->when(!$user->isQuality(), function ($query) use ($user) {
             $query->where('department_id', $user->department_id);
         })
         // ✅ Buscador (folio, hallazgo, departamento, responsable, status)
