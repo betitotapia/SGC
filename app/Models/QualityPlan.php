@@ -12,27 +12,29 @@ class QualityPlan extends Model
 
     protected $fillable = [
         'folio',
+        'open_date',
+        'origin',
         'process',
         'finding_type',
+        'detected_by',
+        'auditor_type',
         'finding',
         'activity',
         'root_cause',
-        'department',
+        'department_id',
         'owner_name',
         'owner_id',
         'commitment_date',
         'close_date',
-        // MANUAL
         'status',
-        // AUTO
         'progress',
         'notes',
     ];
 
     protected $casts = [
-       'open_date'      => 'date',
-        'commitment_date'=> 'date',
-        'close_date'     => 'date',
+        'open_date'        => 'date',
+        'commitment_date'  => 'date',
+        'close_date'       => 'date',
     ];
 
     public function tasks(): HasMany
@@ -42,13 +44,18 @@ class QualityPlan extends Model
 
     public function owner(): BelongsTo
     {
-          return $this->belongsTo(\App\Models\User::class, 'owner_id');
+        return $this->belongsTo(\App\Models\User::class, 'owner_id');
     }
 
-    /** Recalcula el progreso (0..100) por tareas cerradas. NO toca el status del plan (manual). */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Department::class, 'department_id');
+    }
+
     public function recalcProgress(): void
     {
         $total = $this->tasks()->count();
+
         if ($total === 0) {
             $this->progress = 0;
             $this->save();
@@ -61,9 +68,4 @@ class QualityPlan extends Model
         $this->progress = max(0, min(100, $progress));
         $this->save();
     }
-    public function department()
-        {
-            return $this->belongsTo(\App\Models\Department::class, 'department_id');
-        }
-    
 }
