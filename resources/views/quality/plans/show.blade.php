@@ -143,9 +143,9 @@
 
   <div class="d-flex align-items-center justify-content-between my-2">
     <h4 class="m-0">Tareas</h4>
-    @can('quality.tasks.manage')
-      <a class="btn btn-primary btn-sm" href="{{ route('quality.tasks.create', $plan) }}">Nueva tarea</a>
-    @endcan
+    @can('quality.tasks.create')
+  <a class="btn btn-primary btn-sm" href="{{ route('quality.tasks.create', $plan) }}">Nueva tarea</a>
+@endcan
   </div>
 
   <div class="card">
@@ -182,27 +182,27 @@
                 <td>{{ optional($task->commitment_date)->format('Y-m-d') }}</td>
                 <td>{{ optional($task->assignee)->name }}</td>
                 <td style="min-width: 280px;">
-                  @can('quality.evidences.manage')
-                    <form method="POST" action="{{ route('quality.tasks.evidences.store', $task) }}" enctype="multipart/form-data" class="mb-2">
-                      @csrf
-                      <div class="input-group input-group-sm">
+                  @can('quality.evidences.create')
+                <form method="POST" action="{{ route('quality.tasks.evidences.store', $task) }}" enctype="multipart/form-data" class="mb-2">
+                    @csrf
+                    <div class="input-group input-group-sm">
                         <input class="form-control" type="file" name="file" required>
                         <button class="btn btn-outline-primary">Subir</button>
-                      </div>
-                    </form>
-                  @endcan
+                    </div>
+                </form>
+                @endcan
 
                   @if($task->evidences->count())
                     <div class="small">
                       @foreach($task->evidences as $e)
                         <div class="d-flex align-items-center justify-content-between">
                           <a href="{{ asset('storage/'.$e->path) }}" target="_blank">{{ $e->original_name }}</a>
-                          @can('quality.evidences.manage')
-                            <form method="POST" action="{{ route('quality.evidences.destroy', $e) }}" onsubmit="return confirm('¿Eliminar evidencia?');">
+                         @can('quality.evidences.delete')
+                          <form method="POST" action="{{ route('quality.evidences.destroy', $e) }}" onsubmit="return confirm('¿Eliminar evidencia?');">
                               @csrf
                               @method('DELETE')
                               <button class="btn btn-link btn-sm text-danger">Eliminar</button>
-                            </form>
+                          </form>
                           @endcan
                         </div>
                       @endforeach
@@ -212,21 +212,26 @@
                   @endif
                 </td>
                 <td class="text-right">
-                  @can('quality.tasks.manage')
-                    <form method="POST" action="{{ route('quality.tasks.toggle', [$plan, $task]) }}" class="d-inline">
-                      @csrf
-                      <button class="btn btn-sm btn-outline-success">
-                        {{ $task->status === \App\Models\QualityTask::STATUS_CLOSED ? 'Reabrir' : 'Cerrar' }}
-                      </button>
-                    </form>
-                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('quality.tasks.edit', [$plan, $task]) }}">Editar</a>
-                    <form method="POST" action="{{ route('quality.tasks.destroy', [$plan, $task]) }}" class="d-inline" onsubmit="return confirm('¿Eliminar tarea?');">
-                      @csrf
-                      @method('DELETE')
-                      <button class="btn btn-sm btn-outline-danger">Eliminar</button>
-                    </form>
-                  @endcan
-                </td>
+                    @can('quality.tasks.update')
+                      <form method="POST" action="{{ route('quality.tasks.toggle', [$plan, $task]) }}" class="d-inline">
+                        @csrf
+                        <button class="btn btn-sm btn-outline-success">
+                          {{ $task->status === \App\Models\QualityTask::STATUS_CLOSED ? 'Reabrir' : 'Cerrar' }}
+                        </button>
+                      </form>
+
+                      <a class="btn btn-sm btn-outline-secondary" href="{{ route('quality.tasks.edit', [$plan, $task]) }}">Editar</a>
+                    @endcan
+
+                    @can('quality.tasks.delete')
+                      <form method="POST" action="{{ route('quality.tasks.destroy', [$plan, $task]) }}" class="d-inline"
+                            onsubmit="return confirm('¿Eliminar tarea?');">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                      </form>
+                    @endcan
+                  </td>
               </tr>
             @empty
               <tr><td colspan="6" class="text-center py-4">Aún no hay tareas</td></tr>

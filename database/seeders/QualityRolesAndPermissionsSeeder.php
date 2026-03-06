@@ -12,21 +12,22 @@ class QualityRolesAndPermissionsSeeder extends Seeder
     public function run(): void
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
+
         $guard = 'web';
 
         $permissions = [
-            // ✅ permisos “base” que tus middlewares ya están usando en controllers
-            'quality.plans.view',       // <- requerido por QualityPlanController
-            'quality.tasks.manage',     // <- requerido por QualityTaskController
+            // Permisos base usados por controllers
+            'quality.plans.view',
+            'quality.tasks.manage',
 
-            // Planes (granular)
+            // Planes
             'quality.plans.view_all',
             'quality.plans.view_own_dept',
             'quality.plans.create',
             'quality.plans.update',
             'quality.plans.delete',
 
-            // Tareas (granular)
+            // Tareas
             'quality.tasks.create',
             'quality.tasks.update',
             'quality.tasks.delete',
@@ -35,7 +36,7 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.evidences.create',
             'quality.evidences.delete',
 
-            // Kanban / tablero
+            // Kanban
             'quality.kanban.view',
             'quality.kanban.manage',
 
@@ -47,11 +48,13 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'audit.view',
         ];
 
-        foreach ($permissions as $p) {
-            Permission::firstOrCreate(['name' => $p, 'guard_name' => $guard]);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => $guard,
+            ]);
         }
 
-        // Roles
         $roleColaborador = Role::firstOrCreate(['name' => 'Colaborador', 'guard_name' => $guard]);
         $roleAnalista    = Role::firstOrCreate(['name' => 'Analista de Calidad', 'guard_name' => $guard]);
         $roleCoord       = Role::firstOrCreate(['name' => 'Coordinador de Calidad', 'guard_name' => $guard]);
@@ -59,11 +62,7 @@ class QualityRolesAndPermissionsSeeder extends Seeder
         $roleAdmin       = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => $guard]);
 
         // Colaborador:
-        // - ✅ puede entrar a planes y tareas (porque controllers lo piden)
-        // - ✅ ve solo su depto (por filtro en controller)
-        // - ✅ crea tareas/evidencias
-        // - ❌ no edita/elimina planes
-        // - ❌ no edita/elimina tareas (eso lo controlas con Policies)
+        // ve solo su depto, crea tareas y evidencias, no toca planes
         $roleColaborador->syncPermissions([
             'quality.plans.view',
             'quality.plans.view_own_dept',
@@ -76,7 +75,7 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.kanban.view',
         ]);
 
-        // Analista de Calidad:
+        // Analista
         $roleAnalista->syncPermissions([
             'quality.plans.view',
             'quality.plans.view_all',
@@ -93,7 +92,7 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.kanban.manage',
         ]);
 
-        // Coordinador de Calidad:
+        // Coordinador
         $roleCoord->syncPermissions([
             'quality.plans.view',
             'quality.plans.view_all',
@@ -116,7 +115,7 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'audit.view',
         ]);
 
-        // Gerente de Calidad:
+        // Gerente
         $roleGerente->syncPermissions([
             'quality.plans.view',
             'quality.plans.view_all',
@@ -136,12 +135,11 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.kanban.manage',
 
             'quality.departments.manage',
-
             'users.manage',
             'audit.view',
         ]);
 
-        // Admin: todo
+        // Admin
         $roleAdmin->syncPermissions($permissions);
     }
 }

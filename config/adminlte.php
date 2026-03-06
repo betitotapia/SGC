@@ -320,7 +320,11 @@ return [
             'url' => 'admin/blog',
             'can' => 'manage-blog',
         ],
-       
+        [
+            'text' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => 'fas fa-chart-line',
+        ],
         [
     'header' => 'CALIDAD',
         ],
@@ -352,6 +356,30 @@ return [
             'icon' => 'fas fa-building',
             'can'  => 'quality.departments.manage',
         ],
+
+        [
+            'header' => 'ADMINISTRACIÓN',
+            'can' => 'users.manage',
+            ],
+
+            [
+                'text' => 'Usuarios',
+                'icon' => 'fas fa-users',
+                'can' => 'users.manage',
+                'submenu' => [
+                    [
+                        'text' => 'Lista de usuarios',
+                        'route' => 'admin.users.index',
+                        'icon' => 'fas fa-list'
+                    ],
+                    [
+                        'text' => 'Nuevo usuario',
+                        'route' => 'admin.users.create',
+                        'icon' => 'fas fa-user-plus'
+                    ],
+                ],
+            ],
+
     ],
     
     /*

@@ -28,24 +28,20 @@ class QualityPlanController extends Controller
     $user = $request->user();
     $q = $request->string('q')->toString();
 
-    $plans = \App\Models\QualityPlan::query()->with(['department', 'owner'])->when(!$user->isQuality(), function ($query) use ($user) {
+    $plans = \App\Models\QualityPlan::query()
+        ->with(['department', 'owner'])
+        ->when(!$user->isQuality(), function ($query) use ($user) {
             $query->where('department_id', $user->department_id);
         })
-        // ✅ Buscador (folio, hallazgo, departamento, responsable, status)
         ->when($q, function ($query) use ($q) {
             $query->where(function ($sub) use ($q) {
                 $sub->where('folio', 'like', "%{$q}%")
                     ->orWhere('finding', 'like', "%{$q}%")
                     ->orWhere('owner_name', 'like', "%{$q}%")
                     ->orWhere('status', 'like', "%{$q}%")
-                    // busca por nombre del departamento (nuevo modelo)
                     ->orWhereHas('department', function ($dq) use ($q) {
                         $dq->where('name', 'like', "%{$q}%");
                     });
-
-                // Si todavía tienes columna legacy `department` (texto) y NO la has eliminado,
-                // puedes descomentar esta línea:
-                // ->orWhere('department', 'like', "%{$q}%");
             });
         })
         ->orderByDesc('id')
@@ -54,7 +50,6 @@ class QualityPlanController extends Controller
 
     return view('quality.plans.index', compact('plans', 'q'));
 }
-
     public function create(): View
     {
         $plan = new QualityPlan(['status' => 'ABIERTO']);

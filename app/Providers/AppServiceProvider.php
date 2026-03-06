@@ -28,6 +28,6 @@ class AppServiceProvider extends ServiceProvider
     {
        Schema::defaultStringLength(125);
         Task::observe(TaskObserver::class);
-        Gate::policy(QualityTask::class, QualityTaskPolicy::class);
+      Gate::policy(QualityTask::class, QualityTaskPolicy::class);
     }
 }
