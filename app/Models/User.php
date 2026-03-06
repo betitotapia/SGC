@@ -57,7 +57,7 @@ class User extends Authenticatable
     }
 
     public function isQuality(): bool
-    {
-        return $this->hasAnyRole(['Analista de Calidad','Coordinador de Calidad','Gerente de Calidad']);
-    }
+{
+    return $this->can('quality.plans.view_all');
+}
 }
