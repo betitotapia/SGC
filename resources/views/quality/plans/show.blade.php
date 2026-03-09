@@ -15,6 +15,9 @@
       @can('quality.plans.update')
         <a class="btn btn-outline-secondary" href="{{ route('quality.plans.edit', $plan) }}">Editar</a>
       @endcan
+      
+      <a class="btn btn-outline-danger" href="{{ route('quality.plans.pdf', $plan) }}" target="_blank"> PDF</a>
+      
       <a class="btn btn-outline-dark" href="{{ route('quality.plans.index') }}">Volver</a>
     </div>
   </div>

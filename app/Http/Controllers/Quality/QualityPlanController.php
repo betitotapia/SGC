@@ -11,6 +11,8 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Symfony\Component\HttpFoundation\Response;
 
 class QualityPlanController extends Controller
 {
@@ -120,4 +122,27 @@ class QualityPlanController extends Controller
             ->route('quality.plans.index')
             ->with('ok', 'Plan eliminado');
     }
+
+    public function pdf(QualityPlan $plan): Response
+        {
+            $user = request()->user();
+
+            if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
+                abort(403);
+            }
+
+            $plan->recalcProgress();
+
+            $plan = $plan->fresh([
+                'department',
+                'owner',
+                'tasks.evidences',
+                'tasks.assignee',
+            ]);
+
+            $pdf = Pdf::loadView('quality.plans.pdf', compact('plan'))
+                ->setPaper('a4', 'portrait');
+
+            return $pdf->stream("plan-accion-{$plan->folio}.pdf");
+        }
 }

@@ -34,4 +34,5 @@ Route::middleware(['auth'])
             Route::resource('departments', DepartmentController::class)->except(['show']);
             Route::post('departments/{department}/toggle', [DepartmentController::class, 'toggle'])->name('departments.toggle');
         });
+        Route::get('plans/{plan}/pdf', [QualityPlanController::class, 'pdf'])->name('plans.pdf');
     });
