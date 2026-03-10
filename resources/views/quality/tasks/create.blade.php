@@ -68,6 +68,13 @@
     </div>
   </div>
 </div>
+<div class="col-12">
+    <div class="form-group">
+        <label>Comentarios de la tarea</label>
+        <textarea class="form-control" name="comments" rows="3">{{ old('comments', $task->comments) }}</textarea>
+        <small class="text-muted">Comentarios generales del responsable/colaborador sobre la tarea.</small>
+    </div>
+</div>
 
         <button class="btn btn-primary">Guardar</button>
         <a class="btn btn-outline-secondary" href="{{ route('quality.plans.show', $plan) }}">Cancelar</a>

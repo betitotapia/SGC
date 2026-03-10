@@ -18,6 +18,10 @@ class QualityTask extends Model
         'plan_id',
         'title',
         'description',
+        'comments',
+        'review_comment',
+        'reviewed_by',
+        'reviewed_at',
         'commitment_date',
         'status',
         'closed_at',
@@ -27,6 +31,7 @@ class QualityTask extends Model
     protected $casts = [
         'commitment_date' => 'date',
         'closed_at'       => 'datetime',
+        'reviewed_at'     => 'datetime',
     ];
 
     public function plan(): BelongsTo
@@ -44,10 +49,17 @@ class QualityTask extends Model
         return $this->belongsTo(User::class, 'assignee_id');
     }
 
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
     public function markClosed(): void
     {
         $this->status = self::STATUS_CLOSED;
         $this->closed_at = now();
+        $this->reviewed_at = now();
+        $this->reviewed_by = auth()->id();
         $this->save();
     }
 

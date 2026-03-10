@@ -86,10 +86,11 @@ class QualityPlanController extends Controller
         $plan->recalcProgress();
 
         $plan = $plan->fresh([
-            'department',
-            'owner',
-            'tasks.evidences',
-            'tasks.assignee',
+             'department',
+             'owner',
+             'tasks.evidences',
+             'tasks.assignee',
+             'tasks.reviewer',
         ]);
 
         return view('quality.plans.show', compact('plan'));

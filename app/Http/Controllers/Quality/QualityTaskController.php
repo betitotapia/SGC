@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Quality;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Quality\ReviewQualityTaskRequest;
 use App\Http\Requests\Quality\StoreQualityTaskRequest;
 use App\Http\Requests\Quality\UpdateQualityTaskRequest;
 use App\Models\QualityPlan;
@@ -34,12 +35,7 @@ class QualityTaskController extends Controller
         $this->authorize('create', QualityTask::class);
 
         $data = $request->validated();
-
-        if (($data['status'] ?? null) === QualityTask::STATUS_CLOSED) {
-            $data['closed_at'] = now();
-        } else {
-            $data['closed_at'] = null;
-        }
+        $data['closed_at'] = ($data['status'] ?? null) === QualityTask::STATUS_CLOSED ? now() : null;
 
         $plan->tasks()->create($data);
 
@@ -51,7 +47,6 @@ class QualityTaskController extends Controller
     public function edit(QualityPlan $plan, QualityTask $task): View
     {
         abort_unless($task->plan_id === $plan->id, 404);
-
         $this->authorize('update', $task);
 
         $users = User::orderBy('name')->get();
@@ -62,7 +57,6 @@ class QualityTaskController extends Controller
     public function update(UpdateQualityTaskRequest $request, QualityPlan $plan, QualityTask $task): RedirectResponse
     {
         abort_unless($task->plan_id === $plan->id, 404);
-
         $this->authorize('update', $task);
 
         $data = $request->validated();
@@ -83,11 +77,9 @@ class QualityTaskController extends Controller
     public function destroy(QualityPlan $plan, QualityTask $task): RedirectResponse
     {
         abort_unless($task->plan_id === $plan->id, 404);
-
         $this->authorize('delete', $task);
 
         Audit::deleted($task, $task->toArray());
-
         $task->delete();
 
         return redirect()
@@ -98,7 +90,6 @@ class QualityTaskController extends Controller
     public function toggle(QualityPlan $plan, QualityTask $task): RedirectResponse
     {
         abort_unless($task->plan_id === $plan->id, 404);
-
         $this->authorize('update', $task);
 
         if ($task->status === QualityTask::STATUS_CLOSED) {
@@ -110,5 +101,27 @@ class QualityTaskController extends Controller
         return redirect()
             ->route('quality.plans.show', $plan)
             ->with('ok', 'Estatus de tarea actualizado');
+    }
+
+    public function review(ReviewQualityTaskRequest $request, QualityPlan $plan, QualityTask $task): RedirectResponse
+    {
+        abort_unless($task->plan_id === $plan->id, 404);
+        $this->authorize('update', $task);
+
+        $task->review_comment = $request->validated()['review_comment'];
+        $task->reviewed_at = now();
+        $task->reviewed_by = auth()->id();
+
+        // si estaba cerrada, la reabre
+        if ($task->status === QualityTask::STATUS_CLOSED) {
+            $task->status = QualityTask::STATUS_OPEN;
+            $task->closed_at = null;
+        }
+
+        $task->save();
+
+        return redirect()
+            ->route('quality.plans.show', $plan)
+            ->with('ok', 'Comentario de revisión guardado');
     }
 }

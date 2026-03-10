@@ -17,9 +17,12 @@ Route::middleware(['auth'])
         Route::prefix('plans/{plan}')->group(function () {
             Route::resource('tasks', QualityTaskController::class)->except(['index', 'show']);
             Route::post('tasks/{task}/toggle', [QualityTaskController::class, 'toggle'])->name('tasks.toggle');
+            Route::post('tasks/{task}/review', [QualityTaskController::class, 'review'])->name('tasks.review');
 
             Route::get('kanban', [QualityKanbanController::class, 'show'])->name('kanban.show');
             Route::post('kanban/status', [QualityKanbanController::class, 'updateStatus'])->name('kanban.status');
+
+           
         });
 
         Route::post('tasks/{task}/evidences', [QualityTaskEvidenceController::class, 'store'])

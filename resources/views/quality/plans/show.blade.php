@@ -173,7 +173,26 @@
                   @if($task->description)
                     <small class="text-muted">{{ $task->description }}</small>
                   @endif
-                </td>
+                  @if($task->comments)
+                      <div class="small mt-1">
+                          <strong>Comentarios:</strong> {{ $task->comments }}
+                      </div>
+                  @endif
+
+                  @if($task->review_comment)
+                      <div class="small mt-1 text-danger">
+                          <strong>Comentario de revisión:</strong> {{ $task->review_comment }}
+                          @if($task->reviewer)
+                              <div class="text-muted">
+                                  Revisado por {{ $task->reviewer->name }}
+                                  @if($task->reviewed_at)
+                                      el {{ $task->reviewed_at->format('Y-m-d H:i') }}
+                                  @endif
+                              </div>
+                          @endif
+                      </div>
+                  @endif
+                                  </td>
                 <td>
                   <span class="badge badge-{{ $task->status === \App\Models\QualityTask::STATUS_CLOSED ? 'success' : 'warning' }}">
                     {{ $task->status }}
@@ -215,6 +234,23 @@
                   @endif
                 </td>
                 <td class="text-right">
+                  @can('quality.tasks.update')
+                    <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="collapse" data-target="#reviewBox{{ $task->id }}">
+                        Comentar
+                    </button>
+                @endcan
+                  @can('quality.tasks.update')
+                  <div class="collapse mt-2" id="reviewBox{{ $task->id }}">
+                      <form method="POST" action="{{ route('quality.tasks.review', [$plan, $task]) }}">
+                          @csrf
+                          <div class="form-group mb-2">
+                              <textarea class="form-control form-control-sm" name="review_comment" rows="2"
+                                        placeholder="Indica por qué no se cierra la tarea y qué falta para completarla..."></textarea>
+                          </div>
+                          <button class="btn btn-sm btn-warning">Guardar comentario</button>
+                      </form>
+                  </div>
+                  @endcan
                     @can('quality.tasks.update')
                       <form method="POST" action="{{ route('quality.tasks.toggle', [$plan, $task]) }}" class="d-inline">
                         @csrf
