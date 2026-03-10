@@ -36,7 +36,7 @@ class QualityEventNotification extends Notification implements ShouldQueue
 
         if ($this->task) {
             $mail->line('Tarea: ' . $this->task->title)
-                 ->line('Estatus tarea: ' . $this->task->status);
+                 ->line('Estatus de tarea: ' . $this->task->status);
         }
 
         return $mail->action('Ver plan', route('quality.plans.show', $this->plan));

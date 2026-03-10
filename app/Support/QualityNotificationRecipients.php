@@ -12,6 +12,7 @@ class QualityNotificationRecipients
     {
         $users = collect();
 
+        // Responsable de soporte
         if ($plan->owner_id) {
             $ownerSupport = User::find($plan->owner_id);
             if ($ownerSupport) {
@@ -19,15 +20,7 @@ class QualityNotificationRecipients
             }
         }
 
-        // Responsable propietario por correo
-        if (!empty($plan->owner_email)) {
-            $ownerByEmail = User::where('email', $plan->owner_email)->first();
-            if ($ownerByEmail) {
-                $users->push($ownerByEmail);
-            }
-        }
-
-        // Usuarios de calidad
+        // Usuarios de calidad dentro del sistema
         $qualityUsers = User::role([
             'Analista de Calidad',
             'Coordinador de Calidad',
@@ -42,17 +35,24 @@ class QualityNotificationRecipients
 
     public static function emailsForPlan(QualityPlan $plan): array
     {
+        $plan->loadMissing('owner');
+
         $emails = [];
 
+        // Correo del responsable propietario
         if (!empty($plan->owner_email)) {
             $emails[] = $plan->owner_email;
         }
 
+        // Correo del responsable de soporte
         if ($plan->owner && !empty($plan->owner->email)) {
             $emails[] = $plan->owner->email;
         }
 
-        $emails[] = config('quality.general_email');
+        // Correo general de calidad
+        if (config('quality.general_email')) {
+            $emails[] = config('quality.general_email');
+        }
 
         return array_values(array_unique(array_filter($emails)));
     }

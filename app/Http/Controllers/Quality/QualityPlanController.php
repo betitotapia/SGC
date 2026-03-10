@@ -70,6 +70,8 @@ class QualityPlanController extends Controller
             'progress' => 0,
         ]);
 
+        \App\Support\QualityNotifier::planCreated($plan);
+
         return redirect()
             ->route('quality.plans.show', $plan)
             ->with('ok', 'Plan creado');
@@ -86,20 +88,24 @@ class QualityPlanController extends Controller
         $plan->recalcProgress();
 
         $plan = $plan->fresh([
-             'department',
-             'owner',
-             'tasks.evidences',
-             'tasks.assignee',
-             'tasks.reviewer',
+            'department',
+            'owner',
+            'tasks.evidences',
+            'tasks.assignee',
+            'tasks.reviewer',
         ]);
-
-        \App\Support\QualityNotifier::planCreated($plan);
 
         return view('quality.plans.show', compact('plan'));
     }
 
     public function edit(QualityPlan $plan): View
     {
+        $user = request()->user();
+
+        if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
+            abort(403);
+        }
+
         $users = User::orderBy('name')->get();
         $departments = Department::where('is_active', true)->orderBy('name')->get();
 
@@ -108,9 +114,8 @@ class QualityPlanController extends Controller
 
     public function update(UpdateQualityPlanRequest $request, QualityPlan $plan): RedirectResponse
     {
-        $plan->update($request->validated());
-        $plan->recalcProgress();
         $oldStatus = $plan->status;
+
         $plan->update($request->validated());
         $plan->recalcProgress();
 
@@ -126,6 +131,7 @@ class QualityPlanController extends Controller
     public function destroy(QualityPlan $plan): RedirectResponse
     {
         \App\Support\Audit::deleted($plan, $plan->toArray());
+
         $plan->delete();
 
         return redirect()
@@ -134,25 +140,26 @@ class QualityPlanController extends Controller
     }
 
     public function pdf(QualityPlan $plan): Response
-        {
-            $user = request()->user();
+    {
+        $user = request()->user();
 
-            if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
-                abort(403);
-            }
-
-            $plan->recalcProgress();
-
-            $plan = $plan->fresh([
-                'department',
-                'owner',
-                'tasks.evidences',
-                'tasks.assignee',
-            ]);
-
-            $pdf = Pdf::loadView('quality.plans.pdf', compact('plan'))
-                ->setPaper('a4', 'portrait');
-
-            return $pdf->stream("plan-accion-{$plan->folio}.pdf");
+        if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
+            abort(403);
         }
+
+        $plan->recalcProgress();
+
+        $plan = $plan->fresh([
+            'department',
+            'owner',
+            'tasks.evidences',
+            'tasks.assignee',
+            'tasks.reviewer',
+        ]);
+
+        $pdf = Pdf::loadView('quality.plans.pdf', compact('plan'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("plan-accion-{$plan->folio}.pdf");
+    }
 }
