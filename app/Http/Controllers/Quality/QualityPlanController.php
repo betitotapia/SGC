@@ -93,6 +93,8 @@ class QualityPlanController extends Controller
              'tasks.reviewer',
         ]);
 
+        \App\Support\QualityNotifier::planCreated($plan);
+
         return view('quality.plans.show', compact('plan'));
     }
 
@@ -108,6 +110,13 @@ class QualityPlanController extends Controller
     {
         $plan->update($request->validated());
         $plan->recalcProgress();
+        $oldStatus = $plan->status;
+        $plan->update($request->validated());
+        $plan->recalcProgress();
+
+        if ($oldStatus !== 'CERRADO' && $plan->status === 'CERRADO') {
+            \App\Support\QualityNotifier::planClosed($plan);
+        }
 
         return redirect()
             ->route('quality.plans.show', $plan)

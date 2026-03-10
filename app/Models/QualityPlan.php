@@ -23,12 +23,14 @@ class QualityPlan extends Model
         'root_cause',
         'department_id',
         'owner_name',
+        'owner_email',
         'owner_id',
         'commitment_date',
         'close_date',
         'status',
         'progress',
         'notes',
+        
     ];
 
     protected $casts = [

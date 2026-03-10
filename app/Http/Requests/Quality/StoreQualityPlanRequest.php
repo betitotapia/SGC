@@ -26,6 +26,7 @@ class StoreQualityPlanRequest extends FormRequest
             'root_cause'      => ['nullable', 'string'],
             'department_id'   => ['nullable', 'integer', 'exists:departments,id'],
             'owner_name'      => ['nullable', 'string', 'max:255'],
+            'owner_email' => ['nullable', 'email', 'max:255'],
             'owner_id'        => ['nullable', 'integer', 'exists:users,id'],
             'commitment_date' => ['nullable', 'date'],
             'close_date'      => ['nullable', 'date'],

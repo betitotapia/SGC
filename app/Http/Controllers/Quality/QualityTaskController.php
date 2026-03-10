@@ -38,6 +38,9 @@ class QualityTaskController extends Controller
         $data['closed_at'] = ($data['status'] ?? null) === QualityTask::STATUS_CLOSED ? now() : null;
 
         $plan->tasks()->create($data);
+        $task = $plan->tasks()->create($data);
+
+        \App\Support\QualityNotifier::taskCreated($plan, $task);
 
         return redirect()
             ->route('quality.plans.show', $plan)
@@ -66,7 +69,14 @@ class QualityTaskController extends Controller
         } else {
             $data['closed_at'] = null;
         }
+        $oldStatus = $task->status;
+        $task->update($data);
 
+        if ($oldStatus !== \App\Models\QualityTask::STATUS_CLOSED && $task->status === \App\Models\QualityTask::STATUS_CLOSED) {
+            \App\Support\QualityNotifier::taskClosed($plan, $task);
+        } else {
+            \App\Support\QualityNotifier::taskUpdated($plan, $task);
+        }
         $task->update($data);
 
         return redirect()
@@ -97,6 +107,13 @@ class QualityTaskController extends Controller
         } else {
             $task->markClosed();
         }
+        if ($task->status === QualityTask::STATUS_CLOSED) {
+            $task->markOpen();
+            \App\Support\QualityNotifier::taskReopened($plan, $task);
+        } else {
+            $task->markClosed();
+            \App\Support\QualityNotifier::taskClosed($plan, $task);
+        }
 
         return redirect()
             ->route('quality.plans.show', $plan)
@@ -119,7 +136,7 @@ class QualityTaskController extends Controller
         }
 
         $task->save();
-
+        \App\Support\QualityNotifier::taskCommented($plan, $task);
         return redirect()
             ->route('quality.plans.show', $plan)
             ->with('ok', 'Comentario de revisión guardado');

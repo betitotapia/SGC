@@ -106,7 +106,16 @@
       <input class="form-control" name="owner_name" value="{{ old('owner_name', $plan->owner_name) }}">
     </div>
   </div>
-
+  <div class="col-md-4">
+    <div class="form-group">
+        <label>Email del responsable</label>
+        <input type="email"
+               class="form-control"
+               name="owner_email"
+               value="{{ old('owner_email', $plan->owner_email) }}"
+               placeholder="responsable@empresa.com">
+    </div>
+</div>
   <div class="col-md-4">
     <div class="form-group">
       <label>Responsable de soporte</label>

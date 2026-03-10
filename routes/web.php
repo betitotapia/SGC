@@ -25,6 +25,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','permission:users.man
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
+Route::middleware('auth')->post('/notifications/{notification}/read', function (\Illuminate\Notifications\DatabaseNotification $notification) {
+    if ($notification->notifiable_id === auth()->id()) {
+        $notification->markAsRead();
+    }
+
+    return back();
+})->name('notifications.read');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/quality.php';

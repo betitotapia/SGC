@@ -309,6 +309,10 @@ return [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
+        [
+            'type' => 'navbar-notification',
+            'text' => '',
+        ],
 
         // Sidebar items:
         [

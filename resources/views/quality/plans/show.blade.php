@@ -38,6 +38,8 @@
             <div class="col-md-3"><small class="text-muted">Tipo hallazgo</small><div>{{ $plan->finding_type }}</div></div>
             <div class="col-md-3"><small class="text-muted">Departamento</small><div>{{ optional($plan->department)->name }}</div></div>
             <div class="col-md-3"><small class="text-muted">Responsable</small><div>{{ $plan->owner_name }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Email responsable</small><div>{{ $plan->owner_email }}</div></div>
+
           </div>
 
           <div class="row mt-3">
