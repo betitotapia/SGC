@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\WebPushSubscriptionController;
+use Illuminate\Notifications\DatabaseNotification;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,12 +29,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','permission:users.man
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
-Route::middleware('auth')->post('/notifications/{notification}/read', function (\Illuminate\Notifications\DatabaseNotification $notification) {
-    if ($notification->notifiable_id === auth()->id()) {
-        $notification->markAsRead();
-    }
+Route::middleware('auth')->post('/notifications/{notification}/read', function (DatabaseNotification $notification) {
+    abort_unless($notification->notifiable_id === auth()->id(), 403);
 
-    return back();
+    $notification->markAsRead();
+
+    return redirect($notification->data['url'] ?? route('dashboard'));
 })->name('notifications.read');
 
 require __DIR__.'/auth.php';

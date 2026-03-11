@@ -309,13 +309,13 @@ return [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
-        [
-            'text' => '',
-            'topnav_right' => true,
-            'key' => 'notifications_menu',
-            'icon' => 'far fa-bell',
-            'url' => '#',
-        ],
+        // [
+        //     'text' => '',
+        //     'topnav_right' => true,
+        //     'key' => 'notifications_menu',
+        //     'icon' => 'far fa-bell',
+        //     'url' => '#',
+        // ],
 
         // Sidebar items:
         [
