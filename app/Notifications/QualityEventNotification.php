@@ -8,6 +8,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class QualityEventNotification extends Notification implements ShouldQueue
 {
@@ -22,7 +24,7 @@ class QualityEventNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database', 'mail', WebPushChannel::class];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -53,5 +55,26 @@ class QualityEventNotification extends Notification implements ShouldQueue
             'task_title' => $this->task?->title,
             'url' => route('quality.plans.show', $this->plan),
         ];
+    }
+
+    public function toWebPush(object $notifiable, object $notification): WebPushMessage
+    {
+        $body = $this->eventMessage;
+
+        if ($this->task) {
+            $body .= ' Tarea: '.$this->task->title;
+        }
+
+        return (new WebPushMessage)
+            ->title($this->eventTitle.' | '.$this->plan->folio)
+            ->icon('/img/icons/icon-192x192.png')
+            ->badge('/img/icons/badge-72x72.png')
+            ->body($body)
+            ->data([
+                'url' => route('quality.plans.show', $this->plan),
+                'plan_id' => $this->plan->id,
+                'task_id' => $this->task?->id,
+            ])
+            ->action('Ver plan', 'open_url');
     }
 }
