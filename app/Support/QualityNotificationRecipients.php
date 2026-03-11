@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\QualityPlan;
+use App\Models\QualityTask;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -20,7 +21,15 @@ class QualityNotificationRecipients
             }
         }
 
-        // Usuarios de calidad dentro del sistema
+        // Propietario si su email pertenece a un usuario del sistema
+        if (!empty($plan->owner_email)) {
+            $ownerUser = User::where('email', $plan->owner_email)->first();
+            if ($ownerUser) {
+                $users->push($ownerUser);
+            }
+        }
+
+        // Usuarios de calidad
         $qualityUsers = User::role([
             'Analista de Calidad',
             'Coordinador de Calidad',
@@ -33,23 +42,35 @@ class QualityNotificationRecipients
         return $users->unique('id')->values();
     }
 
+    public static function usersForTask(QualityPlan $plan, ?QualityTask $task = null): Collection
+    {
+        $users = self::usersForPlan($plan);
+
+        // Asignado a la tarea
+        if ($task && $task->assignee_id) {
+            $assignee = User::find($task->assignee_id);
+            if ($assignee) {
+                $users->push($assignee);
+            }
+        }
+
+        return $users->unique('id')->values();
+    }
+
     public static function emailsForPlan(QualityPlan $plan): array
     {
         $plan->loadMissing('owner');
 
         $emails = [];
 
-        // Correo del responsable propietario
         if (!empty($plan->owner_email)) {
             $emails[] = $plan->owner_email;
         }
 
-        // Correo del responsable de soporte
         if ($plan->owner && !empty($plan->owner->email)) {
             $emails[] = $plan->owner->email;
         }
 
-        // Correo general de calidad
         if (config('quality.general_email')) {
             $emails[] = config('quality.general_email');
         }

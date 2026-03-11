@@ -13,7 +13,8 @@ class QualityTaskEvidenceController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth','permission:quality.evidences.manage']);
+        $this->middleware(['auth', 'permission:quality.evidences.create'])->only('store');
+        $this->middleware(['auth', 'permission:quality.evidences.delete'])->only('destroy');
     }
 
     public function store(StoreTaskEvidenceRequest $request, QualityTask $task): RedirectResponse
@@ -23,10 +24,10 @@ class QualityTaskEvidenceController extends Controller
 
         $task->evidences()->create([
             'original_name' => $file->getClientOriginalName(),
-            'path'          => $path,
-            'mime_type'     => $file->getMimeType(),
-            'size_bytes'    => $file->getSize(),
-            'uploaded_by'   => $request->user()->id,
+            'path' => $path,
+            'mime_type' => $file->getMimeType(),
+            'size_bytes' => $file->getSize(),
+            'uploaded_by' => $request->user()->id,
         ]);
 
         return back()->with('ok', 'Evidencia subida');
@@ -39,6 +40,7 @@ class QualityTaskEvidenceController extends Controller
         }
 
         $evidence->delete();
+
         return back()->with('ok', 'Evidencia eliminada');
     }
 }
