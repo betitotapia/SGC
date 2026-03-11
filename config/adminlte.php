@@ -310,8 +310,11 @@ return [
             'topnav_right' => true,
         ],
         [
-            'type' => 'navbar-notification',
             'text' => '',
+            'topnav_right' => true,
+            'key' => 'notifications_menu',
+            'icon' => 'far fa-bell',
+            'url' => '#',
         ],
 
         // Sidebar items:
