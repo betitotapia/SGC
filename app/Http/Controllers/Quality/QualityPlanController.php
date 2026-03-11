@@ -93,6 +93,7 @@ class QualityPlanController extends Controller
             'tasks.evidences',
             'tasks.assignee',
             'tasks.reviewer',
+            'monitorings',
         ]);
 
         return view('quality.plans.show', compact('plan'));
@@ -155,6 +156,7 @@ class QualityPlanController extends Controller
             'tasks.evidences',
             'tasks.assignee',
             'tasks.reviewer',
+            'monitorings',
         ]);
 
         $pdf = Pdf::loadView('quality.plans.pdf', compact('plan'))

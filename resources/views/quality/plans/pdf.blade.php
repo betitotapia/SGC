@@ -454,6 +454,49 @@
     </tbody>
 
 </table>
+
+<div class="section-title">Monitoreo, valoración de eficacia y cierre de la acción</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width:10%">Periodo</th>
+            <th style="width:22%">Actividad a monitorear</th>
+            <th style="width:14%">Responsable</th>
+            <th style="width:8%">Eficaz</th>
+            <th style="width:18%">Meta objetivo</th>
+            <th style="width:10%">Objetivo (%)</th>
+            <th style="width:10%">Fecha cierre</th>
+            <th style="width:18%">Resultado final</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($plan->monitorings as $monitoring)
+            <tr>
+                <td>{{ $monitoring->period }}</td>
+                <td>{{ $monitoring->activity_to_monitor }}</td>
+                <td>{{ $monitoring->responsible_name }}</td>
+                <td>
+                    @if($monitoring->is_effective === true)
+                        SI
+                    @elseif($monitoring->is_effective === false)
+                        NO
+                    @else
+                        N/D
+                    @endif
+                </td>
+                <td>{{ $monitoring->target_goal }}</td>
+                <td>{{ $monitoring->goal_percentage }}%</td>
+                <td>{{ optional($monitoring->action_close_date)->format('d/m/Y') }}</td>
+                <td>{{ $monitoring->final_result }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="8" class="text-center">Sin monitoreos registrados</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
 </main>
 
 </body>

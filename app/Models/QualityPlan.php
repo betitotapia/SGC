@@ -70,4 +70,8 @@ class QualityPlan extends Model
         $this->progress = max(0, min(100, $progress));
         $this->save();
     }
+    public function monitorings()
+        {
+            return $this->hasMany(\App\Models\QualityPlanMonitoring::class, 'plan_id')->latest();
+        }
 }

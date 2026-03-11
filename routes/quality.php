@@ -22,6 +22,13 @@ Route::middleware(['auth'])
             Route::get('kanban', [QualityKanbanController::class, 'show'])->name('kanban.show');
             Route::post('kanban/status', [QualityKanbanController::class, 'updateStatus'])->name('kanban.status');
 
+            Route::get('monitorings/create', [\App\Http\Controllers\Quality\QualityPlanMonitoringController::class, 'create'])->name('monitorings.create');
+
+            Route::post('monitorings', [\App\Http\Controllers\Quality\QualityPlanMonitoringController::class, 'store'])->name('monitorings.store');
+            Route::get('monitorings/{monitoring}/edit', [\App\Http\Controllers\Quality\QualityPlanMonitoringController::class, 'edit'])->name('monitorings.edit');
+            Route::put('monitorings/{monitoring}', [\App\Http\Controllers\Quality\QualityPlanMonitoringController::class, 'update'])->name('monitorings.update');
+            Route::delete('monitorings/{monitoring}', [\App\Http\Controllers\Quality\QualityPlanMonitoringController::class, 'destroy'])->name('monitorings.destroy');
+
            
         });
 
