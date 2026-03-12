@@ -10,34 +10,37 @@ class QualityPlan extends Model
 {
     protected $table = 'quality_plans';
 
-    protected $fillable = [
-        'folio',
-        'open_date',
-        'origin',
-        'process',
-        'finding_type',
-        'detected_by',
-        'auditor_type',
-        'finding',
-        'activity',
-        'root_cause',
-        'department_id',
-        'owner_name',
-        'owner_email',
-        'owner_id',
-        'commitment_date',
-        'close_date',
-        'status',
-        'progress',
-        'notes',
-        
-    ];
+        protected $fillable = [
+            'folio',
+            'status',
+            'origin',
+            'finding_type',
+            'detected_by',
+            'auditor_type',
+            'department_id',
+            'owner_id',
+            'owner_name',
+            'owner_email',
+            'process',
+            'finding',
+            'activity',
+            'root_cause',
+            'notes',
+            'open_date',
+            'commitment_date',
+            'close_date',
+            'progress',
+            'final_result',
+            'final_result_by',
+            'final_result_at',
+        ];
 
     protected $casts = [
-        'open_date'        => 'date',
-        'commitment_date'  => 'date',
-        'close_date'       => 'date',
-    ];
+            'open_date' => 'date',
+            'commitment_date' => 'date',
+            'close_date' => 'date',
+            'final_result_at' => 'datetime',
+        ];
 
     public function tasks(): HasMany
     {
@@ -73,5 +76,10 @@ class QualityPlan extends Model
     public function monitorings()
         {
             return $this->hasMany(\App\Models\QualityPlanMonitoring::class, 'plan_id')->latest();
+        }
+
+    public function finalResultUser(): BelongsTo
+        {
+            return $this->belongsTo(\App\Models\User::class, 'final_result_by');
         }
 }

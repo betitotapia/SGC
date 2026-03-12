@@ -14,6 +14,7 @@ use Illuminate\View\View;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\Response;
 
+
 class QualityPlanController extends Controller
 {
     public function __construct()
@@ -164,4 +165,31 @@ class QualityPlanController extends Controller
 
         return $pdf->stream("plan-accion-{$plan->folio}.pdf");
     }
+
+    public function saveFinalResult(Request $request, QualityPlan $plan): RedirectResponse
+            {
+                $user = $request->user();
+
+                if (!$user->can('quality.plans.update')) {
+                    abort(403);
+                }
+
+                if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
+                    abort(403);
+                }
+
+                $data = $request->validate([
+                    'final_result' => ['required', 'string', 'max:5000'],
+                ]);
+
+                $plan->update([
+                    'final_result' => $data['final_result'],
+                    'final_result_by' => $user->id,
+                    'final_result_at' => now(),
+                ]);
+
+                return redirect()
+                    ->route('quality.plans.show', $plan)
+                    ->with('ok', 'Resultado final guardado correctamente');
+            }
 }

@@ -497,6 +497,36 @@
         @endforelse
     </tbody>
 </table>
+
+<div class="section-title">Resultado final del plan</div>
+<table class="table">
+    <tr>
+        <td style="height: 90px;">
+            @if($plan->final_result)
+                {!! nl2br(e($plan->final_result)) !!}
+            @else
+                <span class="muted">Sin resultado final registrado.</span>
+            @endif
+        </td>
+    </tr>
+    @if(($plan->finalResultUser ?? null) || $plan->final_result_at)
+        <tr>
+            <td class="small">
+                @if($plan->finalResultUser ?? null)
+                    <strong>Registrado por:</strong> {{ $plan->finalResultUser->name }}
+                @endif
+
+                @if(($plan->finalResultUser ?? null) && $plan->final_result_at)
+                    |
+                @endif
+
+                @if($plan->final_result_at)
+                    <strong>Fecha:</strong> {{ $plan->final_result_at->format('d/m/Y H:i') }}
+                @endif
+            </td>
+        </tr>
+    @endif
+</table>
 </main>
 
 </body>

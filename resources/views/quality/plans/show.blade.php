@@ -360,5 +360,64 @@
     </div>
 </div>
 
+  <div class="card card-outline card-success mt-4 collapse show" id="finalResultBox">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-flag-checkered mr-1"></i> Resultado final del plan
+      </h3>
+    </div>
+    <div class="card-body">
+      @can('quality.plans.update')
+        <form method="POST" action="{{ route('quality.plans.final-result', $plan) }}" class="mb-4">
+          @csrf
+          <div class="form-group">
+            <label for="final_result" class="font-weight-bold">Capturar resultado final</label>
+            <textarea
+              name="final_result"
+              id="final_result"
+              rows="5"
+              class="form-control @error('final_result') is-invalid @enderror"
+              placeholder="Escribe aquí el cierre o conclusión general del plan..."
+            >{{ old('final_result', $plan->final_result) }}</textarea>
+            @error('final_result')
+              <span class="invalid-feedback d-block">{{ $message }}</span>
+            @enderror
+          </div>
+
+          <div class="text-right">
+            <button type="submit" class="btn btn-success">
+              Guardar resultado final
+            </button>
+          </div>
+        </form>
+      @endcan
+
+      @if($plan->final_result)
+        <div class="border rounded p-3 bg-light">
+          <div class="font-weight-bold mb-2">Resultado final registrado</div>
+          <div style="white-space: pre-line;">{{ $plan->final_result }}</div>
+
+          @if(($plan->finalResultUser ?? null) || $plan->final_result_at)
+            <div class="text-muted small mt-3">
+              @if($plan->finalResultUser ?? null)
+                Registrado por: {{ $plan->finalResultUser->name }}
+              @endif
+
+              @if(($plan->finalResultUser ?? null) && $plan->final_result_at)
+                |
+              @endif
+
+              @if($plan->final_result_at)
+                Fecha: {{ $plan->final_result_at->format('Y-m-d H:i') }}
+              @endif
+            </div>
+          @endif
+        </div>
+      @else
+        <div class="text-muted">Aún no se ha capturado el resultado final de este plan.</div>
+      @endif
+    </div>
+  </div>
+
   </div>
 @stop
