@@ -60,7 +60,7 @@
 
     <div class="col-12">
         <div class="form-group">
-            <label>Resultado final / Observaciones</label>
+            <label>Observaciones</label>
             <textarea name="final_result" class="form-control" rows="3">{{ old('final_result', $monitoring->final_result) }}</textarea>
         </div>
     </div>
