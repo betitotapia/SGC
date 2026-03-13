@@ -8,21 +8,20 @@ use App\Http\Requests\Quality\UpdateQualityPlanRequest;
 use App\Models\Department;
 use App\Models\QualityPlan;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\Response;
-
 
 class QualityPlanController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth','permission:quality.plans.view'])->only(['index','show']);
-        $this->middleware(['auth','permission:quality.plans.create'])->only(['create','store']);
-        $this->middleware(['auth','permission:quality.plans.update'])->only(['edit','update']);
-        $this->middleware(['auth','permission:quality.plans.delete'])->only(['destroy']);
+        $this->middleware(['auth', 'permission:quality.plans.view'])->only(['index', 'show']);
+        $this->middleware(['auth', 'permission:quality.plans.create'])->only(['create', 'store']);
+        $this->middleware(['auth', 'permission:quality.plans.update'])->only(['edit', 'update', 'saveFinalResult']);
+        $this->middleware(['auth', 'permission:quality.plans.delete'])->only(['destroy']);
     }
 
     public function index(Request $request): View
@@ -87,7 +86,6 @@ class QualityPlanController extends Controller
         }
 
         $plan->recalcProgress();
-
         $plan = $plan->fresh([
             'department',
             'owner',
@@ -133,7 +131,6 @@ class QualityPlanController extends Controller
     public function destroy(QualityPlan $plan): RedirectResponse
     {
         \App\Support\Audit::deleted($plan, $plan->toArray());
-
         $plan->delete();
 
         return redirect()
@@ -141,16 +138,102 @@ class QualityPlanController extends Controller
             ->with('ok', 'Plan eliminado');
     }
 
+    public function saveFinalResult(Request $request, QualityPlan $plan): RedirectResponse
+    {
+        $user = $request->user();
+        $this->authorizePlanAccess($user, $plan);
+
+        if ($plan->final_result) {
+            return redirect()
+                ->route('quality.plans.show', $plan)
+                ->with('error', 'El resultado final ya fue registrado. Usa editar.');
+        }
+
+        $data = $request->validate([
+            'final_result' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $plan->update([
+            'final_result' => $data['final_result'],
+            'final_result_by' => $user->id,
+            'final_result_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('quality.plans.show', $plan)
+            ->with('ok', 'Resultado final guardado correctamente.');
+    }
+
+    public function updateFinalResult(Request $request, QualityPlan $plan)
+                {
+                    $user = $request->user();
+
+                    $canManageFinalResult = $user
+                        && (
+                            $user->can('quality.plans.update')
+                            || (method_exists($user, 'hasRole') && (
+                                $user->hasRole('Administrador SGC')
+                                || $user->hasRole('Administrador')
+                                || $user->hasRole('Gerente')
+                                || $user->hasRole('Admin')
+                            ))
+                        );
+
+                    if (!$canManageFinalResult) {
+                        abort(403);
+                    }
+
+                    $data = $request->validate([
+                        'final_result' => ['required', 'string', 'max:5000'],
+                    ]);
+
+                    $plan->update([
+                        'final_result' => $data['final_result'],
+                        'final_result_by' => $user->id,
+                        'final_result_at' => now(),
+                    ]);
+
+                    return redirect()
+                        ->route('quality.plans.show', $plan)
+                        ->with('ok', 'Resultado final actualizado correctamente.');
+                }
+
+   public function destroyFinalResult(Request $request, QualityPlan $plan)
+        {
+            $user = $request->user();
+
+            $canManageFinalResult = $user
+                && (
+                    $user->can('quality.plans.update')
+                    || (method_exists($user, 'hasRole') && (
+                        $user->hasRole('Administrador SGC')
+                        || $user->hasRole('Administrador')
+                        || $user->hasRole('Gerente')
+                        || $user->hasRole('Admin')
+                    ))
+                );
+
+            if (!$canManageFinalResult) {
+                abort(403);
+            }
+
+            $plan->update([
+                'final_result' => null,
+                'final_result_by' => null,
+                'final_result_at' => null,
+            ]);
+
+            return redirect()
+                ->route('quality.plans.show', $plan)
+                ->with('ok', 'Resultado final eliminado correctamente.');
+        }
+
     public function pdf(QualityPlan $plan): Response
     {
         $user = request()->user();
-
-        if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
-            abort(403);
-        }
+        $this->authorizePlanAccess($user, $plan);
 
         $plan->recalcProgress();
-
         $plan = $plan->fresh([
             'department',
             'owner',
@@ -166,30 +249,16 @@ class QualityPlanController extends Controller
         return $pdf->stream("plan-accion-{$plan->folio}.pdf");
     }
 
-    public function saveFinalResult(Request $request, QualityPlan $plan): RedirectResponse
-            {
-                $user = $request->user();
+    protected function authorizePlanAccess($user, QualityPlan $plan): void
+    {
+        if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
+            abort(403);
+        }
+    }
 
-                if (!$user->can('quality.plans.update')) {
-                    abort(403);
-                }
-
-                if (!$user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
-                    abort(403);
-                }
-
-                $data = $request->validate([
-                    'final_result' => ['required', 'string', 'max:5000'],
-                ]);
-
-                $plan->update([
-                    'final_result' => $data['final_result'],
-                    'final_result_by' => $user->id,
-                    'final_result_at' => now(),
-                ]);
-
-                return redirect()
-                    ->route('quality.plans.show', $plan)
-                    ->with('ok', 'Resultado final guardado correctamente');
-            }
+    protected function canManageFinalResult($user): bool
+    {
+        return method_exists($user, 'hasAnyRole')
+            && $user->hasAnyRole(['Gerente', 'Administrador SGC']);
+    }
 }

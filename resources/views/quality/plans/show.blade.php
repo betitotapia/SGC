@@ -359,65 +359,150 @@
         </div>
     </div>
 </div>
+@php
+    $user = auth()->user();
 
-  <div class="card card-outline card-success mt-4 collapse show" id="finalResultBox">
-    <div class="card-header">
-      <h3 class="card-title">
-        <i class="fas fa-flag-checkered mr-1"></i> Resultado final del plan
-      </h3>
-    </div>
-    <div class="card-body">
-      @can('quality.plans.update')
-        <form method="POST" action="{{ route('quality.plans.final-result', $plan) }}" class="mb-4">
-          @csrf
-          <div class="form-group">
-            <label for="final_result" class="font-weight-bold">Capturar resultado final</label>
-            <textarea
-              name="final_result"
-              id="final_result"
-              rows="5"
-              class="form-control @error('final_result') is-invalid @enderror"
-              placeholder="Escribe aquí el cierre o conclusión general del plan..."
-            >{{ old('final_result', $plan->final_result) }}</textarea>
-            @error('final_result')
-              <span class="invalid-feedback d-block">{{ $message }}</span>
-            @enderror
-          </div>
+    $canManageFinalResult = $user
+        && (
+            $user->can('quality.plans.update')
+            || (method_exists($user, 'hasRole') && (
+                $user->hasRole('Administrador SGC')
+                || $user->hasRole('Administrador')
+                || $user->hasRole('Gerente')
+                || $user->hasRole('Admin')
+            ))
+        );
+@endphp
 
-          <div class="text-right">
-            <button type="submit" class="btn btn-success">
-              Guardar resultado final
-            </button>
-          </div>
-        </form>
-      @endcan
+<div class="card card-outline card-success mt-4" id="finalResultBox">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">
+            <i class="fas fa-flag-checkered mr-1"></i> Resultado final del plan
+        </h3>
 
-      @if($plan->final_result)
-        <div class="border rounded p-3 bg-light">
-          <div class="font-weight-bold mb-2">Resultado final registrado</div>
-          <div style="white-space: pre-line;">{{ $plan->final_result }}</div>
+        <div>
+            @if(!$plan->final_result)
+                @can('quality.plans.update')
+                    <button class="btn btn-success btn-sm"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#finalResultCreateBox"
+                            aria-expanded="false"
+                            aria-controls="finalResultCreateBox">
+                        <i class="fas fa-plus"></i> Capturar resultado final
+                    </button>
+                @endcan
+            @else
+                @if($canManageFinalResult)
+                    <button class="btn btn-warning btn-sm"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#finalResultEditBox"
+                            aria-expanded="false"
+                            aria-controls="finalResultEditBox">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
 
-          @if(($plan->finalResultUser ?? null) || $plan->final_result_at)
-            <div class="text-muted small mt-3">
-              @if($plan->finalResultUser ?? null)
-                Registrado por: {{ $plan->finalResultUser->name }}
-              @endif
-
-              @if(($plan->finalResultUser ?? null) && $plan->final_result_at)
-                |
-              @endif
-
-              @if($plan->final_result_at)
-                Fecha: {{ $plan->final_result_at->format('Y-m-d H:i') }}
-              @endif
-            </div>
-          @endif
+                    <form action="{{ route('quality.plans.final-result.destroy', $plan) }}"
+                          method="POST"
+                          class="d-inline"
+                          onsubmit="return confirm('¿Deseas eliminar el resultado final?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </form>
+                @endif
+            @endif
         </div>
-      @else
-        <div class="text-muted">Aún no se ha capturado el resultado final de este plan.</div>
-      @endif
     </div>
-  </div>
 
-  </div>
+    <div class="card-body">
+        @if($plan->final_result)
+            <div class="border rounded p-3 bg-light">
+                <div class="font-weight-bold mb-2">Resultado final registrado</div>
+                <div style="white-space: pre-line;">{{ $plan->final_result }}</div>
+
+                @if($plan->final_result_at)
+                    <div class="text-muted small mt-3">
+                        Fecha: {{ \Carbon\Carbon::parse($plan->final_result_at)->format('Y-m-d H:i') }}
+                    </div>
+                @endif
+            </div>
+        @else
+            <div class="text-muted">Aún no se ha capturado el resultado final de este plan.</div>
+        @endif
+    </div>
+</div>
+
+@if(!$plan->final_result)
+    @can('quality.plans.update')
+        <div id="finalResultCreateBox" class="collapse mt-3">
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Capturar resultado final</h3>
+                </div>
+
+                <form method="POST" action="{{ route('quality.plans.final-result', $plan) }}">
+                    @csrf
+                    <div class="card-body">
+                        <div class="form-group mb-0">
+                            <label for="final_result_create">Resultado final</label>
+                            <textarea
+                                name="final_result"
+                                id="final_result_create"
+                                rows="5"
+                                class="form-control @error('final_result') is-invalid @enderror"
+                                required>{{ old('final_result') }}</textarea>
+
+                            @error('final_result')
+                                <span class="invalid-feedback d-block">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-right">
+                        <button type="submit" class="btn btn-success">Guardar resultado final</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endcan
+@endif
+
+@if($plan->final_result && $canManageFinalResult)
+    <div id="finalResultEditBox" class="collapse mt-3">
+        <div class="card card-warning">
+            <div class="card-header">
+                <h3 class="card-title">Editar resultado final</h3>
+            </div>
+
+            <form method="POST" action="{{ route('quality.plans.final-result.update', $plan) }}">
+                @csrf
+                @method('PUT')
+
+                <div class="card-body">
+                    <div class="form-group mb-0">
+                        <label for="final_result_edit">Resultado final</label>
+                        <textarea
+                            name="final_result"
+                            id="final_result_edit"
+                            rows="5"
+                            class="form-control @error('final_result') is-invalid @enderror"
+                            required>{{ old('final_result', $plan->final_result) }}</textarea>
+
+                        @error('final_result')
+                            <span class="invalid-feedback d-block">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-warning">Actualizar resultado final</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
 @stop

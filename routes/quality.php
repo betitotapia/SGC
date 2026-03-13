@@ -29,19 +29,28 @@ Route::middleware(['auth'])
             Route::put('monitorings/{monitoring}', [QualityPlanMonitoringController::class, 'update'])->name('monitorings.update');
             Route::delete('monitorings/{monitoring}', [QualityPlanMonitoringController::class, 'destroy'])->name('monitorings.destroy');
 
-            Route::post('final-result', [QualityPlanController::class, 'saveFinalResult'])->name('plans.final-result');
+            Route::post('final-result', [QualityPlanController::class, 'saveFinalResult'])
+                ->name('plans.final-result');
 
-           Route::post('final-result', [QualityPlanController::class, 'saveFinalResult'])->name('plans.final-result');
-           Route::put('final-result', [QualityPlanController::class, 'updateFinalResult'])->name('plans.final-result.update');
-           
-           Route::delete('final-result', [QualityPlanController::class, 'destroyFinalResult'])->name('plans.final-result.destroy');});
-           Route::post('tasks/{task}/evidences', [QualityTaskEvidenceController::class, 'store'])->middleware(['permission:quality.evidences.create'])->name('tasks.evidences.store');
-           Route::delete('evidences/{evidence}', [QualityTaskEvidenceController::class, 'destroy'])->middleware(['permission:quality.evidences.delete'])->name('evidences.destroy');
+            Route::put('final-result', [QualityPlanController::class, 'updateFinalResult'])
+                ->name('plans.final-result.update');
+
+            Route::delete('final-result', [QualityPlanController::class, 'destroyFinalResult'])
+                ->name('plans.final-result.destroy');
+        });
+
+        Route::post('tasks/{task}/evidences', [QualityTaskEvidenceController::class, 'store'])
+            ->middleware(['permission:quality.evidences.create'])
+            ->name('tasks.evidences.store');
+
+        Route::delete('evidences/{evidence}', [QualityTaskEvidenceController::class, 'destroy'])
+            ->middleware(['permission:quality.evidences.delete'])
+            ->name('evidences.destroy');
 
         Route::middleware(['permission:quality.departments.manage'])->group(function () {
             Route::resource('departments', DepartmentController::class)->except(['show']);
             Route::post('departments/{department}/toggle', [DepartmentController::class, 'toggle'])->name('departments.toggle');
         });
-        
+
         Route::get('plans/{plan}/pdf', [QualityPlanController::class, 'pdf'])->name('plans.pdf');
     });
