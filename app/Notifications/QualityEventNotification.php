@@ -6,6 +6,7 @@ use App\Models\QualityPlan;
 use App\Models\QualityTask;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
@@ -24,6 +25,10 @@ class QualityEventNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
+        if ($notifiable instanceof AnonymousNotifiable) {
+            return ['mail'];
+        }
+
         return ['database', 'mail', WebPushChannel::class];
     }
 
@@ -38,7 +43,7 @@ class QualityEventNotification extends Notification implements ShouldQueue
 
         if ($this->task) {
             $mail->line('Tarea: ' . $this->task->title)
-                 ->line('Estatus de tarea: ' . $this->task->status);
+                ->line('Estatus de tarea: ' . $this->task->status);
         }
 
         return $mail->action('Ver plan', route('quality.plans.show', $this->plan));
@@ -62,11 +67,11 @@ class QualityEventNotification extends Notification implements ShouldQueue
         $body = $this->eventMessage;
 
         if ($this->task) {
-            $body .= ' Tarea: '.$this->task->title;
+            $body .= ' Tarea: ' . $this->task->title;
         }
 
         return (new WebPushMessage)
-            ->title($this->eventTitle.' | '.$this->plan->folio)
+            ->title($this->eventTitle . ' | ' . $this->plan->folio)
             ->icon('/img/icons/icon-192x192.png')
             ->badge('/img/icons/badge-72x72.png')
             ->body($body)
