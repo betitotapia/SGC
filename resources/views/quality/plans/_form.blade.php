@@ -29,16 +29,17 @@
 
   <div class="col-md-3">
     <div class="form-group">
-      <label>Tipo de hallazgo *</label>
-      <select class="form-control" name="finding_type" required>
-        <option value="">Seleccione</option>
-        <option value="Riesgos" @selected(old('finding_type', $plan->finding_type) == 'Riesgos')>Riesgos</option>
-        <option value="Oportunidades" @selected(old('finding_type', $plan->finding_type) == 'Oportunidades')>Oportunidades</option>
-        <option value="Observación" @selected(old('finding_type', $plan->finding_type) == 'Observación')>Observación</option>
-        <option value="No conformidad" @selected(old('finding_type', $plan->finding_type) == 'No conformidad')>No conformidad</option>
-      </select>
+        <label>Tipo de hallazgo *</label>
+        <select class="form-control" name="finding_type" required>
+            <option value="">Seleccione</option>
+            <option value="Oportunidad de Mejora (OM)" @selected(old('finding_type', $plan->finding_type) == 'Oportunidad de Mejora (OM)')>Oportunidad de Mejora (OM)</option>
+            <option value="Riesgo" @selected(old('finding_type', $plan->finding_type) == 'Riesgo')>Riesgo</option>
+            <option value="NC Menor" @selected(old('finding_type', $plan->finding_type) == 'NC Menor')>NC Menor</option>
+            <option value="NC Mayor" @selected(old('finding_type', $plan->finding_type) == 'NC Mayor')>NC Mayor</option>
+            <option value="Observación" @selected(old('finding_type', $plan->finding_type) == 'Observación')>Observación</option>
+        </select>
     </div>
-  </div>
+</div>
 
   <div class="col-md-4">
     <div class="form-group">
@@ -72,19 +73,7 @@
     </div>
   </div>
 
-  <div class="col-12">
-    <div class="form-group">
-      <label>Actividad</label>
-      <textarea class="form-control" name="activity" rows="2">{{ old('activity', $plan->activity) }}</textarea>
-    </div>
-  </div>
-
-  <div class="col-12">
-    <div class="form-group">
-      <label>Causa raíz</label>
-      <textarea class="form-control" name="root_cause" rows="2">{{ old('root_cause', $plan->root_cause) }}</textarea>
-    </div>
-  </div>
+ 
 
   <div class="col-md-4">
     <div class="form-group">

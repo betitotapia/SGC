@@ -23,8 +23,6 @@ class QualityPlan extends Model
             'owner_email',
             'process',
             'finding',
-            'activity',
-            'root_cause',
             'notes',
             'open_date',
             'commitment_date',
@@ -81,5 +79,10 @@ class QualityPlan extends Model
     public function finalResultUser(): BelongsTo
         {
             return $this->belongsTo(\App\Models\User::class, 'final_result_by');
+        }
+
+        public function rootAnalyses()
+        {
+            return $this->hasMany(\App\Models\QualityPlanRootAnalysis::class, 'plan_id')->latest();
         }
 }

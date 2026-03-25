@@ -37,6 +37,24 @@ Route::middleware(['auth'])
 
             Route::delete('final-result', [QualityPlanController::class, 'destroyFinalResult'])
                 ->name('plans.final-result.destroy');
+
+            Route::get('root-analyses/create', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'create'])
+                ->name('root-analyses.create');
+
+            Route::post('root-analyses', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'store'])
+                ->name('root-analyses.store');
+
+            Route::get('root-analyses/{rootAnalysis}/edit', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'edit'])
+                ->name('root-analyses.edit');
+
+            Route::put('root-analyses/{rootAnalysis}', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'update'])
+                ->name('root-analyses.update');
+
+            Route::delete('root-analyses/{rootAnalysis}', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'destroy'])
+                ->name('root-analyses.destroy');
+
+            Route::delete('root-analyses/{rootAnalysis}/files/{file}', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'destroyFile'])
+                ->name('root-analyses.files.destroy');    
         });
 
         Route::post('tasks/{task}/evidences', [QualityTaskEvidenceController::class, 'store'])

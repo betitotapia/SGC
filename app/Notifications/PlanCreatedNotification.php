@@ -5,7 +5,7 @@ namespace App\Notifications;
 use App\Models\QualityPlan;
 
 class PlanCreatedNotification extends QualityEventNotification
-{
+ {
     public function __construct(QualityPlan $plan)
     {
         parent::__construct(

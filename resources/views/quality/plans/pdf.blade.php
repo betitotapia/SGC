@@ -311,19 +311,7 @@
         </tr>
     </table>
 
-    <div class="section-title">Actividad</div>
-    <table class="table">
-        <tr>
-            <td>{{ $plan->activity }}</td>
-        </tr>
-    </table>
-
-    <div class="section-title">Causa raíz</div>
-    <table class="table">
-        <tr>
-            <td>{{ $plan->root_cause }}</td>
-        </tr>
-    </table>
+    
 
     <div class="section-title">Observaciones</div>
     <table class="table">
