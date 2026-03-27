@@ -40,6 +40,10 @@ class QualityTaskController extends Controller
         $data = $request->validated();
         $data['closed_at'] = ($data['status'] ?? null) === QualityTask::STATUS_CLOSED ? now() : null;
 
+        $nextOrder = $plan->tasks()->max('sort_order');
+        $nextOrder = $nextOrder ? $nextOrder + 1 : 1;
+
+        $data['sort_order'] = $nextOrder;
         $task = $plan->tasks()->create($data);
 
         \App\Support\QualityNotifier::taskCreated($plan, $task);
@@ -94,6 +98,12 @@ class QualityTaskController extends Controller
 
         Audit::deleted($task, $task->toArray());
         $task->delete();
+        $remainingTasks = $plan->tasks()->orderBy('sort_order')->orderBy('id')->get();
+        foreach ($remainingTasks as $index => $item) {
+            $item->update([
+                'sort_order' => $index + 1,
+            ]);
+        }
 
         return redirect()
             ->route('quality.plans.show', $plan)
@@ -140,4 +150,30 @@ class QualityTaskController extends Controller
             ->route('quality.plans.show', $plan)
             ->with('ok', 'Comentario de revisión guardado');
     }
+
+    public function reorder(\Illuminate\Http\Request $request, QualityPlan $plan): \Illuminate\Http\JsonResponse
+        {
+            $this->authorize('update', \App\Models\QualityTask::class);
+
+            $request->validate([
+                'tasks' => ['required', 'array'],
+                'tasks.*' => ['integer'],
+            ]);
+
+            $taskIds = $request->input('tasks');
+
+            $tasks = $plan->tasks()->whereIn('id', $taskIds)->get()->keyBy('id');
+
+            foreach ($taskIds as $index => $taskId) {
+                if (isset($tasks[$taskId])) {
+                    $tasks[$taskId]->update([
+                        'sort_order' => $index + 1,
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'ok' => true,
+            ]);
+        }
 }

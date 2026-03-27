@@ -20,7 +20,7 @@
             @csrf
             @method('PUT')
 
-            @include('quality.root_analyses._form')
+            @include('quality.root_analyses._form', ['analysis' => $analysis, 'plan' => $plan])
 
             <button type="submit" class="btn btn-primary">Actualizar</button>
             <a class="btn btn-outline-secondary" href="{{ route('quality.plans.show', $plan) }}">Cancelar</a>
@@ -31,11 +31,14 @@
 @if($analysis->files->count())
 <div class="card mt-3">
     <div class="card-body">
-        <h5>Archivos cargados</h5>
+        <h5 class="mb-3">Archivos cargados</h5>
+
         <ul class="list-group">
             @foreach($analysis->files as $file)
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{{ asset('storage/'.$file->path) }}" target="_blank">{{ $file->original_name }}</a>
+                    <a href="{{ asset('storage/'.$file->path) }}" target="_blank">
+                        {{ $file->original_name }}
+                    </a>
 
                     <form method="POST"
                           action="{{ route('quality.root-analyses.files.destroy', [$plan, $analysis, $file]) }}"

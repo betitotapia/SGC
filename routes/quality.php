@@ -19,6 +19,8 @@ Route::middleware(['auth'])
             Route::resource('tasks', QualityTaskController::class)->except(['index', 'show']);
             Route::post('tasks/{task}/toggle', [QualityTaskController::class, 'toggle'])->name('tasks.toggle');
             Route::post('tasks/{task}/review', [QualityTaskController::class, 'review'])->name('tasks.review');
+            Route::post('tasks/reorder', [\App\Http\Controllers\Quality\QualityTaskController::class, 'reorder'])
+                ->name('tasks.reorder');
 
             Route::get('kanban', [QualityKanbanController::class, 'show'])->name('kanban.show');
             Route::post('kanban/status', [QualityKanbanController::class, 'updateStatus'])->name('kanban.status');
@@ -54,7 +56,8 @@ Route::middleware(['auth'])
                 ->name('root-analyses.destroy');
 
             Route::delete('root-analyses/{rootAnalysis}/files/{file}', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'destroyFile'])
-                ->name('root-analyses.files.destroy');    
+                ->name('root-analyses.files.destroy');   
+
         });
 
         Route::post('tasks/{task}/evidences', [QualityTaskEvidenceController::class, 'store'])

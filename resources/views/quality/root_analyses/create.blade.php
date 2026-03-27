@@ -14,11 +14,14 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" action="{{ route('quality.root-analyses.store', $plan) }}" enctype="multipart/form-data">
+        <form method="POST"
+              action="{{ route('quality.root-analyses.store', $plan) }}"
+              enctype="multipart/form-data">
             @csrf
-            @include('quality.root_analyses._form')
 
-            <button class="btn btn-primary">Guardar</button>
+            @include('quality.root_analyses._form', ['analysis' => $analysis, 'plan' => $plan])
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
             <a class="btn btn-outline-secondary" href="{{ route('quality.plans.show', $plan) }}">Cancelar</a>
         </form>
     </div>

@@ -26,6 +26,7 @@ class QualityTask extends Model
         'status',
         'closed_at',
         'assignee_id',
+        'sort_order',
     ];
 
     protected $casts = [

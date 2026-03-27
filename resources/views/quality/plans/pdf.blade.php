@@ -319,6 +319,68 @@
             <td>{{ $plan->notes }}</td>
         </tr>
     </table>
+<!----------comienza causa raiz---------------->
+
+<div class="section-title">Análisis de Causa Raíz</div>
+
+@forelse($plan->rootAnalyses as $analysis)
+    <table class="table" style="margin-bottom: 14px;">
+        <tr>
+            <th colspan="2" style="text-align: left; background: #f3f3f3;">
+                Registro de análisis #{{ $loop->iteration }}
+            </th>
+        </tr>
+
+        <tr>
+            <th style="width: 25%;">Descripción del análisis</th>
+            <td style="width: 75%;">{{ $analysis->analysis_description ?: 'Sin descripción' }}</td>
+        </tr>
+
+        <tr>
+            <th>Equipo de análisis</th>
+            <td>
+                @if(!empty($analysis->analysis_team) && count($analysis->analysis_team))
+                    @foreach($analysis->analysis_team as $member)
+                        <div>
+                            {{ $member['name'] ?? '' }}
+                            @if(!empty($member['position']))
+                                - {{ $member['position'] }}
+                            @endif
+                        </div>
+                    @endforeach
+                @else
+                    <span class="small muted">Sin integrantes registrados</span>
+                @endif
+            </td>
+        </tr>
+
+        <tr>
+            <th>Evidencias</th>
+            <td>
+                @if($analysis->files->count())
+                    @foreach($analysis->files as $file)
+                        <div>{{ $file->original_name }}</div>
+                    @endforeach
+                @else
+                    <span class="small muted">Sin archivos adjuntos</span>
+                @endif
+            </td>
+        </tr>
+
+        <tr>
+            <th>Comentarios</th>
+            <td>{{ $analysis->comments ?: 'Sin comentarios' }}</td>
+        </tr>
+    </table>
+@empty
+    <table class="table">
+        <tr>
+            <td class="text-center">Sin análisis de causa raíz registrados</td>
+        </tr>
+    </table>
+@endforelse
+<!------------comienza acciones---------------->
+
 
     <div class="section-title">Tareas del plan</div>
     <table class="table">
@@ -455,7 +517,7 @@
             <th style="width:18%">Meta objetivo</th>
             <th style="width:10%">Objetivo (%)</th>
             <th style="width:10%">Fecha cierre</th>
-            <th style="width:18%">Resultado final</th>
+            <th style="width:.5%"></th>
         </tr>
     </thead>
     <tbody>
@@ -476,7 +538,8 @@
                 <td>{{ $monitoring->target_goal }}</td>
                 <td>{{ $monitoring->goal_percentage }}%</td>
                 <td>{{ optional($monitoring->action_close_date)->format('d/m/Y') }}</td>
-                <td>{{ $monitoring->final_result }}</td>
+                 <td></td>
+                
             </tr>
         @empty
             <tr>
