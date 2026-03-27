@@ -213,36 +213,58 @@
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tbody = document.getElementById('tasks-sortable');
     if (!tbody) return;
+
+    const refreshNumbers = () => {
+        tbody.querySelectorAll('tr[data-id]').forEach((row, index) => {
+            const orderCell = row.querySelector('.drag-order-number');
+            if (orderCell) {
+                orderCell.textContent = index + 1;
+            }
+        });
+    };
 
     new Sortable(tbody, {
         animation: 150,
         handle: '.drag-handle',
         ghostClass: 'table-warning',
         onEnd: function () {
-            const ids = Array.from(tbody.querySelectorAll('tr[data-id]')).map(row => row.dataset.id);
+            refreshNumbers();
+
+            const ids = Array.from(tbody.querySelectorAll('tr[data-id]'))
+                .map(row => parseInt(row.dataset.id, 10));
 
             fetch("{{ route('quality.tasks.reorder', $plan) }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({ tasks: ids })
             })
-            .then(res => res.json())
+            .then(async res => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.message || 'Error al guardar el orden');
+                }
+                return data;
+            })
             .then(data => {
-                if (data.ok) {
-                    location.reload();
+                if (!data.ok) {
+                    throw new Error(data.message || 'No se pudo guardar el orden');
                 }
             })
             .catch(error => {
-                console.error(error);
+                console.error('Error reorder:', error);
                 alert('No se pudo guardar el nuevo orden.');
+                location.reload();
             });
         }
     });

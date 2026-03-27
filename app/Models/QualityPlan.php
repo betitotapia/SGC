@@ -40,12 +40,12 @@ class QualityPlan extends Model
             'final_result_at' => 'datetime',
         ];
 
-    public function tasks()
-        {
-            return $this->hasMany(\App\Models\QualityTask::class, 'plan_id')
-                ->orderBy('sort_order')
-                ->orderBy('id');
-        }
+    public function tasks(): HasMany
+            {
+                return $this->hasMany(QualityTask::class, 'plan_id')
+                    ->orderBy('sort_order')
+                    ->orderBy('id');
+            }
     public function owner(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'owner_id');

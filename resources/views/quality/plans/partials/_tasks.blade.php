@@ -24,9 +24,9 @@
                 <tbody id="tasks-sortable">
                     @forelse($plan->tasks as $task)
                         <tr data-id="{{ $task->id }}">
-                            <td class="drag-handle" style="cursor: grab; white-space: nowrap;">
+                           <td class="drag-handle" style="cursor: grab; white-space: nowrap;">
                                 <i class="fas fa-grip-vertical text-muted mr-1"></i>
-                                {{ $loop->iteration }}
+                                <span class="drag-order-number">{{ $loop->iteration }}</span>
                             </td>
 
                             <td>

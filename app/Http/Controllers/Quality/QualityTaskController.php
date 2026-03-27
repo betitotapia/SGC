@@ -153,8 +153,6 @@ class QualityTaskController extends Controller
 
     public function reorder(\Illuminate\Http\Request $request, QualityPlan $plan): \Illuminate\Http\JsonResponse
         {
-            $this->authorize('update', \App\Models\QualityTask::class);
-
             $request->validate([
                 'tasks' => ['required', 'array'],
                 'tasks.*' => ['integer'],
@@ -162,18 +160,27 @@ class QualityTaskController extends Controller
 
             $taskIds = $request->input('tasks');
 
-            $tasks = $plan->tasks()->whereIn('id', $taskIds)->get()->keyBy('id');
+            $tasks = $plan->tasks()
+                ->withoutGlobalScopes()
+                ->whereIn('id', $taskIds)
+                ->get()
+                ->keyBy('id');
 
             foreach ($taskIds as $index => $taskId) {
-                if (isset($tasks[$taskId])) {
-                    $tasks[$taskId]->update([
-                        'sort_order' => $index + 1,
-                    ]);
+                if (! isset($tasks[$taskId])) {
+                    continue;
                 }
+
+                $this->authorize('update', $tasks[$taskId]);
+
+                $tasks[$taskId]->update([
+                    'sort_order' => $index + 1,
+                ]);
             }
 
             return response()->json([
                 'ok' => true,
+                'message' => 'Orden actualizado',
             ]);
         }
 }
