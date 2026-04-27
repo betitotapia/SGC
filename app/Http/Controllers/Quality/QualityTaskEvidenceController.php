@@ -20,7 +20,7 @@ class QualityTaskEvidenceController extends Controller
     public function store(StoreTaskEvidenceRequest $request, QualityTask $task): RedirectResponse
     {
         $file = $request->file('file');
-        $path = $file->store('task-evidences', 'public');
+        $path = $file->store('task-evidences', 'public_ftp');
 
         $task->evidences()->create([
             'original_name' => $file->getClientOriginalName(),
@@ -35,8 +35,8 @@ class QualityTaskEvidenceController extends Controller
 
     public function destroy(QualityTaskEvidence $evidence): RedirectResponse
     {
-        if ($evidence->path && Storage::disk('public')->exists($evidence->path)) {
-            Storage::disk('public')->delete($evidence->path);
+        if ($evidence->path && Storage::disk('public_ftp')->exists($evidence->path)) {
+            Storage::disk('public_ftp')->delete($evidence->path);
         }
 
         $evidence->delete();

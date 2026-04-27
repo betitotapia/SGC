@@ -58,7 +58,7 @@ class QualityPlanRootAnalysisController extends Controller
                     continue;
                 }
 
-                $path = $file->store('root-analyses', 'public');
+                $path = $file->store('root-analyses', 'public_ftp');
 
                 $analysis->files()->create([
                     'original_name' => $file->getClientOriginalName(),
@@ -121,7 +121,7 @@ class QualityPlanRootAnalysisController extends Controller
                 continue;
             }
 
-            $path = $file->store('root-analyses', 'public');
+            $path = $file->store('root-analyses', 'public_ftp');
 
             $rootAnalysis->files()->create([
                 'original_name' => $file->getClientOriginalName(),
@@ -143,8 +143,8 @@ class QualityPlanRootAnalysisController extends Controller
         abort_unless($rootAnalysis->plan_id === $plan->id, 404);
 
         foreach ($rootAnalysis->files as $file) {
-            if ($file->path && Storage::disk('public')->exists($file->path)) {
-                Storage::disk('public')->delete($file->path);
+            if ($file->path && Storage::disk('public_ftp')->exists($file->path)) {
+                Storage::disk('public_ftp')->delete($file->path);
             }
         }
 
@@ -160,8 +160,8 @@ class QualityPlanRootAnalysisController extends Controller
         abort_unless($rootAnalysis->plan_id === $plan->id, 404);
         abort_unless($file->root_analysis_id === $rootAnalysis->id, 404);
 
-        if ($file->path && Storage::disk('public')->exists($file->path)) {
-            Storage::disk('public')->delete($file->path);
+        if ($file->path && Storage::disk('public_ftp')->exists($file->path)) {
+            Storage::disk('public_ftp')->delete($file->path);
         }
 
         $file->delete();
