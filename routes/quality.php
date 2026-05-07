@@ -7,6 +7,21 @@ use App\Http\Controllers\Quality\QualityTaskEvidenceController;
 use App\Http\Controllers\Quality\QualityKanbanController;
 use App\Http\Controllers\Quality\DepartmentController;
 use App\Http\Controllers\Quality\QualityPlanMonitoringController;
+use App\Http\Controllers\Quality\DocumentController;
+use App\Http\Controllers\Quality\DocumentVersionController;
+use App\Http\Controllers\Quality\DocumentApprovalController;
+use App\Http\Controllers\Quality\DocumentApprovalTemplateController;
+use App\Http\Controllers\Quality\DocumentMobileSignController;
+
+// ── Firma móvil (sin autenticación — el token es la credencial) ───────────────
+Route::prefix('quality')
+    ->name('quality.')
+    ->group(function () {
+        Route::get('mobile-sign/{token}', [DocumentMobileSignController::class, 'show'])
+            ->name('mobile-sign.show');
+        Route::post('mobile-sign/{token}', [DocumentMobileSignController::class, 'store'])
+            ->name('mobile-sign.store');
+    });
 
 Route::middleware(['auth'])
     ->prefix('quality')
@@ -74,4 +89,46 @@ Route::middleware(['auth'])
         });
 
         Route::get('plans/{plan}/pdf', [QualityPlanController::class, 'pdf'])->name('plans.pdf');
+
+        // ── Control Documental ────────────────────────────────────────────────
+        Route::resource('documents', DocumentController::class);
+
+        Route::get('documents/{document}/poll-status', [DocumentController::class, 'pollStatus'])
+            ->name('documents.poll-status');
+
+        // Firmas pendientes del usuario autenticado
+        Route::get('pending-signatures', [DocumentApprovalController::class, 'pending'])
+            ->name('documents.pending');
+
+        // Imagen de firma autógrafa (disco privado)
+        Route::get('approvals/{approval}/signature-image', [DocumentApprovalController::class, 'signatureImage'])
+            ->name('documents.approvals.signature');
+
+        Route::resource('approval-templates', DocumentApprovalTemplateController::class)
+            ->middleware('permission:documents.manage_approvals')
+            ->except(['show']);
+
+        Route::prefix('documents/{document}')->group(function () {
+            // Versiones
+            Route::post('versions', [DocumentVersionController::class, 'store'])
+                ->name('documents.versions.store');
+            Route::delete('versions/{version}', [DocumentVersionController::class, 'destroy'])
+                ->name('documents.versions.destroy');
+            Route::get('versions/{version}/download', [DocumentVersionController::class, 'download'])
+                ->name('documents.versions.download');
+            Route::get('versions/{version}/certificate', [DocumentVersionController::class, 'downloadCertificate'])
+                ->name('documents.versions.certificate');
+
+            // Flujo de aprobación
+            Route::post('submit', [DocumentApprovalController::class, 'submit'])
+                ->name('documents.submit');
+            Route::get('approvals/{approval}/sign', [DocumentApprovalController::class, 'showSign'])
+                ->name('documents.approvals.show-sign');
+            Route::post('approvals/{approval}/sign', [DocumentApprovalController::class, 'sign'])
+                ->name('documents.approvals.sign');
+            Route::get('approvals/{approval}/check-pending', [DocumentApprovalController::class, 'checkPending'])
+                ->name('documents.approvals.check-pending');
+            Route::post('approvals/{approval}/mobile-token', [DocumentMobileSignController::class, 'generateToken'])
+                ->name('documents.approvals.mobile-token');
+        });
     });

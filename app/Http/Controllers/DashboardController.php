@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\DocumentApproval;
 use App\Models\QualityPlan;
 use App\Models\QualityTask;
 use Carbon\Carbon;
@@ -168,6 +169,22 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Firmas digitales pendientes del usuario autenticado
+        $pendingSignatures = DocumentApproval::with([
+                'version.document.department',
+            ])
+            ->where('user_id', $user->id)
+            ->where('status', DocumentApproval::STATUS_PENDING)
+            ->whereHas('version', fn ($q) =>
+                $q->whereIn('status', ['in_review', 'in_approval'])
+            )
+            ->orderBy('created_at')
+            ->get()
+            ->filter(fn ($approval) =>
+                // Solo mostrar si es el turno del usuario (siguiente en la cadena)
+                optional($approval->version)->nextPendingApproval()?->id === $approval->id
+            );
+
         return view('dashboard', compact(
             'totalPlans',
             'openPlans',
@@ -178,7 +195,8 @@ class DashboardController extends Controller
             'chartValues',
             'areasRisk',
             'urgentTasks',
-            'isQuality'
+            'isQuality',
+            'pendingSignatures'
         ));
     }
 }

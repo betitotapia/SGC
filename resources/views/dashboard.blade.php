@@ -21,6 +21,45 @@
 
 @section('content')
 <div id="dashboardArea">
+
+  {{-- ── Firmas digitales pendientes ─────────────────────────────────── --}}
+  @if($pendingSignatures->isNotEmpty())
+    <div class="alert alert-warning alert-dismissible border-left border-warning shadow-sm mb-4">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <h5 class="font-weight-bold mb-2">
+        <i class="fas fa-signature mr-1"></i>
+        Tienes {{ $pendingSignatures->count() }} {{ $pendingSignatures->count() === 1 ? 'documento pendiente de firma' : 'documentos pendientes de firma' }}
+      </h5>
+      <div class="row">
+        @foreach($pendingSignatures as $pending)
+          @php $doc = $pending->version->document; @endphp
+          <div class="col-md-6 col-lg-4 mb-2">
+            <div class="card border-warning mb-0">
+              <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="font-weight-bold">{{ $doc->folio }}</div>
+                    <div class="small text-muted">{{ $doc->title }}</div>
+                    <div class="small">
+                      <span class="badge badge-{{ $pending->role_in_approval === 'approver' ? 'success' : ($pending->role_in_approval === 'reviewer' ? 'warning' : 'secondary') }}">
+                        {{ \App\Models\DocumentApproval::ROLE_LABELS[$pending->role_in_approval] }}
+                      </span>
+                      <span class="text-muted">· v{{ $pending->version->version_number }}</span>
+                    </div>
+                  </div>
+                  <a href="{{ route('quality.documents.approvals.show-sign', [$doc, $pending]) }}"
+                     class="btn btn-sm btn-warning ml-2">
+                    Firmar
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </div>
+  @endif
+
     <div class="row">
         <div class="col-lg-3 col-6">
             <div class="small-box bg-primary">

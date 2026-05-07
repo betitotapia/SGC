@@ -24,4 +24,14 @@ class Department extends Model
             'id'             // Local key on quality_plans
         );
     }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class, 'department_id');
+    }
+
+    public function approvalTemplates()
+    {
+        return $this->hasMany(DocumentApprovalTemplate::class, 'department_id')->orderBy('order');
+    }
 }

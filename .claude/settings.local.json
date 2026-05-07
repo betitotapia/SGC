@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(php -l app/Http/Controllers/Quality/DocumentApprovalController.php)",
+      "Bash(php -l app/Http/Controllers/Quality/DocumentController.php)",
+      "Bash(php -l app/Models/Document.php)",
+      "Bash(php -l app/Models/DocumentApproval.php)",
+      "Bash(php -l app/Models/DocumentVersion.php)",
+      "Bash(php -l app/Providers/AppServiceProvider.php)",
+      "Bash(php -l app/Notifications/DocumentEventNotification.php)",
+      "Bash(php -l config/adminlte.php)",
+      "Bash(composer show *)",
+      "Bash(php -l app/Http/Controllers/Quality/DocumentVersionController.php)",
+      "Bash(php -l app/Http/Controllers/Quality/DocumentMobileSignController.php app/Models/DocumentApproval.php routes/quality.php)"
+    ]
+  }
+}

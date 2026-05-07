@@ -355,7 +355,33 @@ return [
             ],
         ],
         [
-            'header' => 'DEPARTAMENTOS',
+            'text' => 'Control Documental',
+            'icon' => 'fas fa-folder-open',
+            'can'  => 'documents.view',
+            'submenu' => [
+                [
+                    'text'  => 'Documentos',
+                    'route' => 'quality.documents.index',
+                    'icon'  => 'fas fa-file-alt',
+                    'can'   => 'documents.view',
+                ],
+                [
+                    'text'  => 'Nuevo documento',
+                    'route' => 'quality.documents.create',
+                    'icon'  => 'fas fa-plus',
+                    'can'   => 'documents.create',
+                ],
+                [
+                    'text'  => 'Mis firmas pendientes',
+                    'route' => 'quality.documents.pending',
+                    'icon'  => 'fas fa-signature',
+                    'can'   => 'documents.view',
+                ],
+            ],
+        ],
+        [
+            'header' => 'CONFIGURACIÓN',
+            'can'    => 'quality.departments.manage',
         ],
         [
             'text' => 'Departamentos',

@@ -43,6 +43,15 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             // Catálogos
             'quality.departments.manage',
 
+            // Control Documental
+            'documents.view',
+            'documents.view_all',
+            'documents.create',
+            'documents.update',
+            'documents.delete',
+            'documents.manage_approvals',
+            'documents.approve', // Firmar como autorizador (Dirección)
+
             // Administración
             'users.manage',
             'audit.view',
@@ -59,6 +68,7 @@ class QualityRolesAndPermissionsSeeder extends Seeder
         $roleAnalista    = Role::firstOrCreate(['name' => 'Analista de Calidad', 'guard_name' => $guard]);
         $roleCoord       = Role::firstOrCreate(['name' => 'Coordinador de Calidad', 'guard_name' => $guard]);
         $roleGerente     = Role::firstOrCreate(['name' => 'Gerente de Calidad', 'guard_name' => $guard]);
+        $roleDirector    = Role::firstOrCreate(['name' => 'Director', 'guard_name' => $guard]);
         $roleAdmin       = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => $guard]);
 
         // Colaborador:
@@ -73,6 +83,8 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.evidences.create',
 
             'quality.kanban.view',
+
+            'documents.view',
         ]);
 
         // Analista
@@ -90,6 +102,11 @@ class QualityRolesAndPermissionsSeeder extends Seeder
 
             'quality.kanban.view',
             'quality.kanban.manage',
+
+            'documents.view',
+            'documents.view_all',
+            'documents.create',
+            'documents.update',
         ]);
 
         // Coordinador
@@ -113,6 +130,13 @@ class QualityRolesAndPermissionsSeeder extends Seeder
 
             'quality.departments.manage',
             'audit.view',
+
+            'documents.view',
+            'documents.view_all',
+            'documents.create',
+            'documents.update',
+            'documents.delete',
+            'documents.manage_approvals',
         ]);
 
         // Gerente
@@ -137,6 +161,20 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.departments.manage',
             'users.manage',
             'audit.view',
+
+            'documents.view',
+            'documents.view_all',
+            'documents.create',
+            'documents.update',
+            'documents.delete',
+            'documents.manage_approvals',
+        ]);
+
+        // Director: solo ve y firma documentos que se le asignen
+        $roleDirector->syncPermissions([
+            'documents.view',
+            'documents.view_all',
+            'documents.approve',
         ]);
 
         // Admin
