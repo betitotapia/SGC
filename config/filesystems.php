@@ -47,11 +47,11 @@ return [
             'report' => false,
         ],
 
-        // Disco para hosting compartido sin symlinks (public/ copiado a raíz del proyecto).
-        // Guarda en storage/task-evidences/ accesible en APP_URL/storage/...
+        // Disco para contenidos públicos servidos desde public/storage.
+        // Guarda en storage/app/public/... accesible en APP_URL/storage/...
         'public_ftp' => [
             'driver' => 'local',
-            'root'   => base_path('storage'),
+            'root'   => storage_path('app/public'),
             'url'    => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage',
             'visibility' => 'public',
             'throw'  => false,

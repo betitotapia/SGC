@@ -32,6 +32,7 @@
         <label>Tipo de hallazgo *</label>
         <select class="form-control" name="finding_type" required>
             <option value="">Seleccione</option>
+            <option value="Oportunidad" @selected(old('finding_type', $plan->finding_type) == 'Oportunidad')>Oportunidad</option>
             <option value="Oportunidad de Mejora (OM)" @selected(old('finding_type', $plan->finding_type) == 'Oportunidad de Mejora (OM)')>Oportunidad de Mejora (OM)</option>
             <option value="Riesgo" @selected(old('finding_type', $plan->finding_type) == 'Riesgo')>Riesgo</option>
             <option value="NC Menor" @selected(old('finding_type', $plan->finding_type) == 'NC Menor')>NC Menor</option>
@@ -107,7 +108,7 @@
 </div>
   <div class="col-md-4">
     <div class="form-group">
-      <label>Responsable de soporte</label>
+      <label>Responsable de soporte / seguimiento</label>
       <select class="form-control" name="owner_id">
         <option value="">-- Sin asignar --</option>
         @foreach($users as $u)

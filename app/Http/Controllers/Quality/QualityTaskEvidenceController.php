@@ -8,11 +8,13 @@ use App\Models\QualityTask;
 use App\Models\QualityTaskEvidence;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Response;
 
 class QualityTaskEvidenceController extends Controller
 {
     public function __construct()
     {
+        $this->middleware(['auth', 'permission:quality.plans.view'])->only('download');
         $this->middleware(['auth', 'permission:quality.evidences.create'])->only('store');
         $this->middleware(['auth', 'permission:quality.evidences.delete'])->only('destroy');
     }
@@ -33,6 +35,26 @@ class QualityTaskEvidenceController extends Controller
         return back()->with('ok', 'Evidencia subida');
     }
 
+    public function download(QualityTaskEvidence $evidence): Response|RedirectResponse
+    {
+        $this->authorizeAccess($evidence);
+
+        if (! $evidence->path || ! Storage::disk('public_ftp')->exists($evidence->path)) {
+            return back()->with('error', 'El archivo de evidencia no fue encontrado en el servidor.');
+        }
+
+        $filename = str_replace(['\\', '"'], ['', ''], $evidence->original_name ?: 'evidencia');
+
+        return response(
+            Storage::disk('public_ftp')->get($evidence->path),
+            200,
+            [
+                'Content-Type' => $evidence->mime_type ?? 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ]
+        );
+    }
+
     public function destroy(QualityTaskEvidence $evidence): RedirectResponse
     {
         if ($evidence->path && Storage::disk('public_ftp')->exists($evidence->path)) {
@@ -42,5 +64,21 @@ class QualityTaskEvidenceController extends Controller
         $evidence->delete();
 
         return back()->with('ok', 'Evidencia eliminada');
+    }
+
+    protected function authorizeAccess(QualityTaskEvidence $evidence): void
+    {
+        $evidence->loadMissing('task.plan');
+
+        $user = request()->user();
+        $plan = $evidence->task?->plan;
+
+        if (! $plan) {
+            abort(404);
+        }
+
+        if (! $user->can('quality.plans.view_all') && $plan->department_id !== $user->department_id) {
+            abort(403);
+        }
     }
 }

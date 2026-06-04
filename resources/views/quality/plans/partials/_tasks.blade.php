@@ -88,7 +88,7 @@
                                     <div class="small">
                                         @foreach($task->evidences as $e)
                                             <div class="d-flex align-items-center justify-content-between">
-                                                <a href="{{ asset('storage/'.$e->path) }}" target="_blank">{{ $e->original_name }}</a>
+                                                <a href="{{ route('quality.evidences.download', $e) }}" target="_blank">{{ $e->original_name }}</a>
 
                                                 @can('quality.evidences.delete')
                                                     <form method="POST" action="{{ route('quality.evidences.destroy', $e) }}" onsubmit="return confirm('¿Eliminar evidencia?');">

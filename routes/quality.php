@@ -79,6 +79,10 @@ Route::middleware(['auth'])
             ->middleware(['permission:quality.evidences.create'])
             ->name('tasks.evidences.store');
 
+        Route::get('evidences/{evidence}/download', [QualityTaskEvidenceController::class, 'download'])
+            ->middleware(['permission:quality.plans.view'])
+            ->name('evidences.download');
+
         Route::delete('evidences/{evidence}', [QualityTaskEvidenceController::class, 'destroy'])
             ->middleware(['permission:quality.evidences.delete'])
             ->name('evidences.destroy');
