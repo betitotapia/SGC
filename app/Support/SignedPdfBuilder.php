@@ -9,6 +9,8 @@ use setasign\Fpdi\Tcpdf\Fpdi;
 
 class SignedPdfBuilder
 {
+    public const SIGNATURE_PAGE_LAYOUT_VERSION = 2;
+
     /**
      * Genera el PDF firmado: documento original + página de cadena de firmas.
      * Almacena el resultado en disco local y actualiza signed_pdf_path en la versión.
@@ -53,7 +55,8 @@ class SignedPdfBuilder
         $document    = $version->document;
         $safeForlio  = preg_replace('/[^A-Za-z0-9\-]/', '_', $document->folio);
         $safeVersion = str_replace('.', '-', $version->version_number);
-        $filename    = "documents/signed/signed_{$safeForlio}_v{$safeVersion}.pdf";
+        $layoutVersion = self::SIGNATURE_PAGE_LAYOUT_VERSION;
+        $filename      = "documents/signed/signed_{$safeForlio}_v{$safeVersion}_layout{$layoutVersion}.pdf";
 
         Storage::disk('local')->put($filename, $finalContent);
         $version->update(['signed_pdf_path' => $filename]);

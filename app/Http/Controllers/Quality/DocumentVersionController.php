@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Quality;
 use App\Http\Controllers\Controller;
 use App\Models\Document;
 use App\Models\DocumentVersion;
+use App\Support\SignedPdfBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -114,6 +115,25 @@ class DocumentVersionController extends Controller
     {
         $this->authorizeAccess($document);
 
+        if ($this->shouldRegenerateSignedPdf($version)) {
+            $previousPath = $version->signed_pdf_path;
+
+            try {
+                SignedPdfBuilder::build($version->loadMissing('approvals.user', 'document.department'));
+                $version->refresh();
+
+                if (
+                    $previousPath
+                    && $previousPath !== $version->signed_pdf_path
+                    && Storage::disk('local')->exists($previousPath)
+                ) {
+                    Storage::disk('local')->delete($previousPath);
+                }
+            } catch (\Throwable $e) {
+                \Log::error('SignedPdfBuilder download refresh: ' . $e->getMessage());
+            }
+        }
+
         // Servir el PDF firmado (con cadena de firmas embebida) si está disponible
         if (
             $version->signed_pdf_path
@@ -182,5 +202,24 @@ class DocumentVersionController extends Controller
         if (! $user->can('documents.view_all') && $document->department_id !== $user->department_id) {
             abort(403);
         }
+    }
+
+    private function shouldRegenerateSignedPdf(DocumentVersion $version): bool
+    {
+        if ($version->status !== 'approved') {
+            return false;
+        }
+
+        if (! $version->signed_pdf_path) {
+            return true;
+        }
+
+        if (! Storage::disk('local')->exists($version->signed_pdf_path)) {
+            return true;
+        }
+
+        $layoutMarker = '_layout' . SignedPdfBuilder::SIGNATURE_PAGE_LAYOUT_VERSION;
+
+        return ! str_contains(pathinfo($version->signed_pdf_path, PATHINFO_FILENAME), $layoutMarker);
     }
 }

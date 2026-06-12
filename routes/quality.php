@@ -70,6 +70,9 @@ Route::middleware(['auth'])
             Route::delete('root-analyses/{rootAnalysis}', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'destroy'])
                 ->name('root-analyses.destroy');
 
+            Route::get('root-analyses/{rootAnalysis}/files/{file}/download', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'download'])
+                ->name('root-analyses.files.download');
+
             Route::delete('root-analyses/{rootAnalysis}/files/{file}', [\App\Http\Controllers\Quality\QualityPlanRootAnalysisController::class, 'destroyFile'])
                 ->name('root-analyses.files.destroy');   
 

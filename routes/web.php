@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\WebPushSubscriptionController;
 use Illuminate\Notifications\DatabaseNotification;
 
@@ -23,9 +22,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/push-subscriptions', [WebPushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth','permission:users.manage'])->group(function () {
-    Route::resource('users', UserController::class)->except(['show','destroy']);
-});
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });

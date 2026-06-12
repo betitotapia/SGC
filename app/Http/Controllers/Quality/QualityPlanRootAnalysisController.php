@@ -9,6 +9,7 @@ use App\Models\QualityPlan;
 use App\Models\QualityPlanRootAnalysis;
 use App\Models\QualityPlanRootAnalysisFile;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -169,5 +170,26 @@ class QualityPlanRootAnalysisController extends Controller
         return redirect()
             ->route('quality.root-analyses.edit', [$plan, $rootAnalysis])
             ->with('ok', 'Archivo eliminado');
+    }
+
+    public function download(QualityPlan $plan, QualityPlanRootAnalysis $rootAnalysis, QualityPlanRootAnalysisFile $file): Response|RedirectResponse
+    {
+        abort_unless($rootAnalysis->plan_id === $plan->id, 404);
+        abort_unless($file->root_analysis_id === $rootAnalysis->id, 404);
+
+        if (! $file->path || ! Storage::disk('public_ftp')->exists($file->path)) {
+            return back()->with('error', 'El archivo no fue encontrado en el servidor.');
+        }
+
+        $filename = str_replace(['\\', '"'], ['', ''], $file->original_name ?: 'archivo');
+
+        return response(
+            Storage::disk('public_ftp')->get($file->path),
+            200,
+            [
+                'Content-Type' => $file->mime_type ?? 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ]
+        );
     }
 }

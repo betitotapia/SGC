@@ -8,6 +8,6 @@ Route::middleware(['auth','permission:users.manage'])
     ->name('admin.')
     ->group(function () {
 
-        Route::resource('users', UserController::class);
+        Route::resource('users', UserController::class)->except(['show']);
 
     });

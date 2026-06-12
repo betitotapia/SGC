@@ -36,7 +36,7 @@
                         <ul class="mb-0">
                             @foreach($analysis->files as $file)
                                 <li>
-                                    <a href="{{ asset('storage/'.$file->path) }}" target="_blank">{{ $file->original_name }}</a>
+                                    <a href="{{ route('quality.root-analyses.files.download', [$plan, $analysis, $file]) }}" target="_blank">{{ $file->original_name }}</a>
                                 </li>
                             @endforeach
                         </ul>

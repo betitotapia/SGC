@@ -36,7 +36,7 @@
         <ul class="list-group">
             @foreach($analysis->files as $file)
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{{ asset('storage/'.$file->path) }}" target="_blank">
+                    <a href="{{ route('quality.root-analyses.files.download', [$plan, $analysis, $file]) }}" target="_blank">
                         {{ $file->original_name }}
                     </a>
 

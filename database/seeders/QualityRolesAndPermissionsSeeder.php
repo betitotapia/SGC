@@ -103,6 +103,9 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.kanban.view',
             'quality.kanban.manage',
 
+            'quality.departments.manage',
+            'users.manage',
+
             'documents.view',
             'documents.view_all',
             'documents.create',
@@ -129,6 +132,7 @@ class QualityRolesAndPermissionsSeeder extends Seeder
             'quality.kanban.manage',
 
             'quality.departments.manage',
+            'users.manage',
             'audit.view',
 
             'documents.view',

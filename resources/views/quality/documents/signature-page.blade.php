@@ -39,20 +39,6 @@
       width: 135px;
       vertical-align: middle;
     }
-    .header-code table {
-      width: 100%;
-      border-collapse: collapse;
-      border: 1.5px solid #000;
-      font-size: 8.5pt;
-      text-align: center;
-    }
-    .header-code table td {
-      border-bottom: 1px solid #000;
-      padding: 3px 5px;
-    }
-    .header-code table tr:last-child td {
-      border-bottom: none;
-    }
 
     /* ── Título de sección ── */
     .section-title {
@@ -120,6 +106,24 @@
       color: #666;
       margin-top: 3px;
     }
+    .platform-revision-cell {
+      padding: 0 !important;
+      border: 1.5px solid #333;
+    }
+    .platform-revision {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0;
+      font-size: 8.5pt;
+      text-align: center;
+    }
+    .platform-revision td {
+      border-bottom: 1px solid #333;
+      padding: 5px 8px;
+    }
+    .platform-revision tr:last-child td {
+      border-bottom: none;
+    }
 
     /* ── Nota al pie ── */
     .footer-note {
@@ -137,8 +141,9 @@
 @php
   $document      = $version->document;
   $effectiveDate = $version->effective_date ?? ($version->approved_at ?? now());
-  $revLabel      = 'REV. ' . strtoupper($version->version_number);
+  $revLabel      = 'Rev. en plataforma: ' . strtoupper($version->version_number);
   $dateLabel     = 'FECHA: ' . (is_string($effectiveDate) ? $effectiveDate : $effectiveDate->format('d/m/Y'));
+  $approvalColumnCount = max($version->approvals->count(), 1);
 @endphp
 
 {{-- ── Encabezado ── --}}
@@ -164,13 +169,7 @@
       @endif
     </td>
     <td class="header-title">{{ $document->title }}</td>
-    <td class="header-code">
-      <table>
-        <tr><td><strong>{{ $document->folio }}</strong></td></tr>
-        <tr><td>{{ $revLabel }}</td></tr>
-        <tr><td>{{ $dateLabel }}</td></tr>
-      </table>
-    </td>
+    <td class="header-code">&nbsp;</td>
   </tr>
 </table>
 
@@ -227,6 +226,17 @@
       @endforeach
     </tr>
   </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="{{ $approvalColumnCount }}" class="platform-revision-cell">
+        <table class="platform-revision">
+          <tr><td><strong>{{ $document->folio }}</strong></td></tr>
+          <tr><td>{{ $revLabel }}</td></tr>
+          <tr><td>{{ $dateLabel }}</td></tr>
+        </table>
+      </td>
+    </tr>
+  </tfoot>
 </table>
 
 <div class="footer-note">

@@ -50,6 +50,14 @@
             </td>
             <td class="text-right">
               <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.users.edit',$u) }}">Editar</a>
+              @if(auth()->id() !== $u->id)
+                <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="d-inline"
+                      onsubmit="return confirm('¿Eliminar usuario?');">
+                  @csrf
+                  @method('DELETE')
+                  <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
+              @endif
             </td>
           </tr>
         @endforeach

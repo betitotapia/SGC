@@ -63,7 +63,18 @@
   <div class="col-md-4">
     <div class="form-group">
       <label>Proceso</label>
-      <input class="form-control" name="process" value="{{ old('process', $plan->process) }}">
+      <select class="form-control" name="process">
+        <option value="">Seleccione</option>
+        <option value="PRO-DIR-01 PROCESO DE DIRECCIÓN" @selected(old('process', $plan->process) == 'PRO-DIR-01 PROCESO DE DIRECCIÓN')>PRO-DIR-01 PROCESO DE DIRECCIÓN</option>
+        <option value="PRO-SO-01 PROCESO DE SOPORTE ORGANIZACIONAL" @selected(old('process', $plan->process) == 'PRO-SO-01 PROCESO DE SOPORTE ORGANIZACIONAL')>PRO-SO-01 PROCESO DE SOPORTE ORGANIZACIONAL</option>
+        <option value="PRO-RH-01 PROCESO DE RECURSOS HUMANOS" @selected(old('process', $plan->process) == 'PRO-RH-01 PROCESO DE RECURSOS HUMANOS')>PRO-RH-01 PROCESO DE RECURSOS HUMANOS</option>
+        <option value="PRO-AF-01 PROCESO DE ADMINISTRACIÓN Y FINANZAS" @selected(old('process', $plan->process) == 'PRO-AF-01 PROCESO DE ADMINISTRACIÓN Y FINANZAS')>PRO-AF-01 PROCESO DE ADMINISTRACIÓN Y FINANZAS</option>
+        <option value="PRO-COM-01 PROCESO DE COMPRAS" @selected(old('process', $plan->process) == 'PRO-COM-01 PROCESO DE COMPRAS')>PRO-COM-01 PROCESO DE COMPRAS</option>
+        <option value="PRO-VNT-01 PROCESO DE VENTAS" @selected(old('process', $plan->process) == 'PRO-VNT-01 PROCESO DE VENTAS')>PRO-VNT-01 PROCESO DE VENTAS</option>
+        <option value="PRO-AT-01 PROCESO DE ATENCIÓN A CLIENTES" @selected(old('process', $plan->process) == 'PRO-AT-01 PROCESO DE ATENCIÓN A CLIENTES')>PRO-AT-01 PROCESO DE ATENCIÓN A CLIENTES</option>
+        <option value="PRO-AL-01 PROCESO DE ALMACÉN Y LOGÍSTICA" @selected(old('process', $plan->process) == 'PRO-AL-01 PROCESO DE ALMACÉN Y LOGÍSTICA')>PRO-AL-01 PROCESO DE ALMACÉN Y LOGÍSTICA</option>
+        <option value="PRO-SMAM-01 PROCESO DE SEG., MED., ANÁLISIS Y MEJORA" @selected(old('process', $plan->process) == 'PRO-SMAM-01 PROCESO DE SEG., MED., ANÁLISIS Y MEJORA')>PRO-SMAM-01 PROCESO DE SEG., MED., ANÁLISIS Y MEJORA</option>
+      </select>
     </div>
   </div>
 

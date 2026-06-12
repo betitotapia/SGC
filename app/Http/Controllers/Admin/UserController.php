@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
@@ -95,5 +97,18 @@ class UserController extends Controller
         $user->syncRoles([$data['role']]);
 
         return redirect()->route('admin.users.index')->with('ok','Usuario actualizado');
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        if (Auth::id() === $user->id) {
+            return redirect()
+                ->route('admin.users.index')
+                ->with('error', 'No puedes eliminar tu propio usuario.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('ok','Usuario eliminado');
     }
 }
